@@ -15,6 +15,11 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
     static final String PASS = "Training123!";
 
     @Override
+    public void save(Recipe recipe) {
+
+    }
+
+    @Override
     public List<Recipe> getRecipes() {
         Logger logger = LoggerFactory.getLogger(getClass());
         logger.debug("Start to getRecipes from Postgres via JDBC.");
@@ -70,5 +75,15 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
         }
         logger.info("Finish getRecipes {}", recipes);
         return recipes;
+    }
+
+    @Override
+    public Recipe getById(Long id) {
+        return null;
+    }
+
+    @Override
+    public void delete(Recipe recipe) {
+
     }
 }

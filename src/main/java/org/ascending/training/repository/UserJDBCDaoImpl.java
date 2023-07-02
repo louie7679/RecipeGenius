@@ -14,6 +14,11 @@ public class UserJDBCDaoImpl implements IUserDao{
     static final String PASS = "Training123!";
 
     @Override
+    public void save(User user) {
+
+    }
+
+    @Override
     public List<User> getUsers() {
         Logger logger = LoggerFactory.getLogger(getClass());
         logger.debug("Start to getUsers from Postgres via JDBC.");
@@ -67,5 +72,15 @@ public class UserJDBCDaoImpl implements IUserDao{
         }
         logger.info("Finish getUsers {}", users);
         return users;
+    }
+
+    @Override
+    public User getById(Long id) {
+        return null;
+    }
+
+    @Override
+    public void delete(User user) {
+
     }
 }

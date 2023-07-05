@@ -47,7 +47,7 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
                 String description = rs.getString("description");
                 String instructions = rs.getString("instructions");
                 String dietaryRestrictions = rs.getString("dietaryRestrictions");
-                Long userId = rs.getLong("user_id");
+                // Long userId = rs.getLong("user_id");
 
                 Recipe recipe = new Recipe();
                 recipe.setRecipeId(recipeId);
@@ -55,7 +55,7 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
                 recipe.setDescription(description);
                 recipe.setInstructions(instructions);
                 recipe.setDietaryRestrictions(dietaryRestrictions);
-                recipe.setUserId(userId);
+                // recipe.setUserId();
                 recipes.add(recipe);
             }
 

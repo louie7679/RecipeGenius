@@ -19,7 +19,7 @@ public class UserHibernateDaoImplTest {
         user1.setName("Bob");
         user1.setEmail("example@gmail.com");
         user1.setPassword("password");
-        user1.setDietaryRestrictions("vegan");
+        user1.setDietaryRestrictions("vegetarian");
         userHibernateDao.save(user1);
     }
 

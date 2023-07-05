@@ -3,7 +3,7 @@ package org.ascending.training.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Users")
+@Table(name = "users")
 public class User {
 
     public User() {}
@@ -11,7 +11,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long userId;
+    private long id;
 
     @Column(name = "name")
     private String name;
@@ -25,7 +25,7 @@ public class User {
     @Column(name = "dietary_restrictions")
     private String dietaryRestrictions;
 
-    public void setId(long userId) { this.userId = userId; }
+    public void setId(long id) { this.id = id; }
 
     public void setName(String name) { this.name = name; }
 

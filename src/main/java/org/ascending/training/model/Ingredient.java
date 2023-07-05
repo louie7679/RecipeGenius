@@ -3,7 +3,7 @@ package org.ascending.training.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Ingredients")
+@Table(name = "ingredients")
 public class Ingredient {
 
     public Ingredient() {}

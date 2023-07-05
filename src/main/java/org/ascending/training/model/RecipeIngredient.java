@@ -3,8 +3,6 @@ package org.ascending.training.model;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Entity
-@Table(name = "Recipe_Ingredients")
 public class RecipeIngredient {
 
     public RecipeIngredient() {}

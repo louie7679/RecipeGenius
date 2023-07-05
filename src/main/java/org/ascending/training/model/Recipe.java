@@ -3,7 +3,7 @@ package org.ascending.training.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Recipes")
+@Table(name = "recipes")
 public class Recipe {
 
     public Recipe() {}
@@ -42,5 +42,5 @@ public class Recipe {
 
     public void setDietaryRestrictions(String dietaryRestrictions) { this.dietaryRestrictions = dietaryRestrictions; }
 
-    public void setUserId(long userId) {  }
+    public void setUserId() {  }
 }

@@ -46,8 +46,8 @@ public class IngredientJDBCDaoImpl implements IIngredientDao{
                 String category = rs.getString("category");
 
                 Ingredient ingredient = new Ingredient();
-                ingredient.setIngredientId(ingredientId);
-                ingredient.setIngredientName(ingredientName);
+                ingredient.setId(ingredientId);
+                ingredient.setName(ingredientName);
                 ingredient.setCategory(category);
                 ingredients.add(ingredient);
             }

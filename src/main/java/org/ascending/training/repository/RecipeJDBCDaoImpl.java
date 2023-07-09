@@ -50,8 +50,8 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
                 // Long userId = rs.getLong("user_id");
 
                 Recipe recipe = new Recipe();
-                recipe.setRecipeId(recipeId);
-                recipe.setRecipeName(recipeName);
+                recipe.setId(recipeId);
+                recipe.setName(recipeName);
                 recipe.setDescription(description);
                 recipe.setInstructions(instructions);
                 recipe.setDietaryRestrictions(dietaryRestrictions);

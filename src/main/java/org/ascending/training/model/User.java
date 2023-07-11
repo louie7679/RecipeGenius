@@ -9,6 +9,14 @@ public class User {
 
     public User() {}
 
+    public User(long id, String name, String email, String password, String dietaryRestrictions) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.dietaryRestrictions = dietaryRestrictions;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")

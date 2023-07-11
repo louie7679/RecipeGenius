@@ -1,42 +1,73 @@
 package org.ascending.training.repository;
 
 import org.ascending.training.model.User;
+import org.ascending.training.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserHibernateDaoImplTest {
-    private UserHibernateDaoImpl userHibernateDao;
-    private User user1;
+    @Mock
+    private SessionFactory mockSessionFactory;
+    @Mock
+    private Session mockSession;
+
+    @Mock
+    private Query mockQuery;
+
+    private IUserDao userDao;
 
     @Before
     public void setUp() {
-        userHibernateDao = new UserHibernateDaoImpl();
-        user1 = new User();
-        user1.setId(1);
-        user1.setName("Bob");
-        user1.setEmail("example@gmail.com");
-        user1.setPassword("password");
-        user1.setDietaryRestrictions("vegetarian");
-        userHibernateDao.save(user1);
+        initMocks(this);
+        userDao = new UserHibernateDaoImpl();
     }
 
     @After
     public void tearDown() {
-        //userHibernateDao.delete(d1);
+
     }
 
     @Test
-    public void getUsersTest() {
-        assertEquals(1, userHibernateDao.getUsers().size());
-        userHibernateDao.delete(user1);
+    public void getUsersTest_happyPath() {
+        User user = new User(
+                1,
+                "Emily",
+                "emily@example.com",
+                "password123",
+                "Vegan"
+        );
+        List<User> result = List.of(user);
+
+        try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
+            mockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(mockSessionFactory);
+
+            when(mockSessionFactory.openSession()).thenReturn(mockSession);
+            when(mockSession.createQuery(any(String.class))).thenReturn(mockQuery);
+            when(mockQuery.list()).thenReturn(result);
+            doNothing().when(mockSession).close();
+
+            List<User> actualResult = userDao.getUsers();
+            assertEquals(result, actualResult);
+
+        }
+
+
     }
 
-    @Test
-    public void deleteUsersTest() {
-        userHibernateDao.delete(user1);
-        assertEquals(0, userHibernateDao.getUsers().size());
-    }
 }

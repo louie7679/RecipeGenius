@@ -5,6 +5,7 @@ import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +18,20 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     @Override
     public void save(Ingredient ingredient) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Transaction transaction = null;
         try {
             Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
             session.save(ingredient);
+            transaction.commit();
             session.close();
         } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Save transaction failed, rolling back");
+                transaction.rollback();
+            }
             logger.error("Open session exception or close session exception", e);
         }
-
     }
 
     @Override
@@ -58,10 +65,8 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try {
             Session session = sessionFactory.openSession();
-            session.beginTransaction();
             //Retrieve the object to be updated
             ingredient = session.get(Ingredient.class, id);
-            session.getTransaction().commit();
             session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
@@ -72,13 +77,18 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     @Override
     public void delete(Ingredient ingredient) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Transaction transaction = null;
         try {
             Session session = sessionFactory.openSession();
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             session.delete(ingredient);
-            session.getTransaction().commit();
+            transaction.commit();
             session.close();
         } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
             logger.error("Open session exception or close session exception", e);
         }
     }

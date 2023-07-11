@@ -1,6 +1,7 @@
 package org.ascending.training.repository;
 
 import org.ascending.training.model.Recipe;
+import org.ascending.training.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

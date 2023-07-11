@@ -20,11 +20,7 @@ public class Ingredient {
     @Column(name = "category")
     private String category;
 
-    @ManyToMany
-    @JoinTable(name = "recipe_ingredients",
-            joinColumns = { @JoinColumn(name = "ingredient_id") },
-            inverseJoinColumns = { @JoinColumn(name = "recipe_id")}
-    )
+    @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
     private Set<Recipe> recipes;
 
     public long getId() { return id; }

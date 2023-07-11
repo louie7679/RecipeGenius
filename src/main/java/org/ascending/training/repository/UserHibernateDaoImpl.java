@@ -5,6 +5,7 @@ import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +18,18 @@ public class UserHibernateDaoImpl implements IUserDao{
     @Override
     public void save(User user) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Transaction transaction = null;
         try {
             Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
             session.save(user);
+            transaction.commit();
             session.close();
-        } catch (HibernateException e) {
+        } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Save transaction failed, rolling back");
+                transaction.rollback();
+            }
             logger.error("Open session exception or close session exception", e);
         }
     }
@@ -47,7 +55,7 @@ public class UserHibernateDaoImpl implements IUserDao{
             logger.error("Open session exception or close session exception", e);
         }
 
-        logger.info("Get departments {}", users);
+        logger.info("Get users {}", users);
         return users;
     }
 
@@ -57,10 +65,8 @@ public class UserHibernateDaoImpl implements IUserDao{
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try {
            Session session = sessionFactory.openSession();
-           session.beginTransaction();
            //Retrieve the object to be updated
            user = session.get(User.class, id);
-           session.getTransaction().commit();
            session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
@@ -71,14 +77,36 @@ public class UserHibernateDaoImpl implements IUserDao{
     @Override
     public void delete(User user) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Transaction transaction = null;
         try {
             Session session = sessionFactory.openSession();
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             session.delete(user);
-            session.getTransaction().commit();
+            transaction.commit();
             session.close();
         } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
             logger.error("Open session exception or close session exception", e);
+        }
+    }
+
+    @Override
+    public User getUserEagerBy(Long id) {
+        String hql = "FROM User u LEFT JOIN FETCH u.recipes where u.id = :Id"; //LEFT JOIN FETCH: HQL里面的left join
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            Query<User> query = session.createQuery(hql);
+            query.setParameter("Id", id);
+            User result = query.uniqueResult();
+            session.close();
+            return result;
+        } catch(HibernateException e) {
+            logger.error("failed to retrieve data record", e);
+            session.close();
+            return null;
         }
     }
 }

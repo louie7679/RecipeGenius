@@ -33,7 +33,11 @@ public class Recipe {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(mappedBy = "recipes", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "recipe_ingredients",
+            joinColumns = { @JoinColumn(name = "recipe_id") },
+            inverseJoinColumns = { @JoinColumn(name = "ingredient_id")}
+    )
     private Set<Ingredient> ingredients;
 
     public long getId() { return id; }

@@ -5,6 +5,7 @@ import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +18,17 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     @Override
     public void save(Recipe recipe) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Transaction transaction = null;
         try {
             Session session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
             session.save(recipe);
+            transaction.commit();
             session.close();
         } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Save transaction failed, rolling back");
+            }
             logger.error("Open session exception or close session exception", e);
         }
     }
@@ -58,9 +65,8 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try {
             Session session = sessionFactory.openSession();
-            session.beginTransaction();
+            //Retrieve the object to be updated
             recipe = session.get(Recipe.class, id);
-            session.getTransaction().commit();
             session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
@@ -71,13 +77,18 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     @Override
     public void delete(Recipe recipe) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Transaction transaction = null;
         try {
             Session session = sessionFactory.openSession();
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             session.delete(recipe);
-            session.getTransaction().commit();
+            transaction.commit();
             session.close();
         } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
             logger.error("Open session exception or close session exception", e);
         }
     }

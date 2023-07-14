@@ -1,5 +1,6 @@
 package org.ascending.training.repository;
 
+import org.ascending.training.model.Ingredient;
 import org.ascending.training.model.Recipe;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface IRecipeDao {
 
     //Delete
     void delete(Recipe recipe);
+
+    Recipe getRecipeEagerBy(Long id);
 }

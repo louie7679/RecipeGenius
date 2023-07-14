@@ -92,4 +92,21 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
             logger.error("Open session exception or close session exception", e);
         }
     }
+
+    @Override
+    public Recipe getRecipeEagerBy(Long id) {
+        String hql = "FROM Recipe r LEFT JOIN FETCH r.ingredients where r.id = :Id";
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            Query<Recipe> query = session.createQuery(hql);
+            query.setParameter("Id", id);
+            Recipe result = query.uniqueResult();
+            session.close();
+            return result;
+        } catch(HibernateException e) {
+            logger.error("Failed to retrieve recipe data record", e);
+            session.close();
+            return null;
+        }
+    }
 }

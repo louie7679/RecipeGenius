@@ -79,4 +79,9 @@ public class IngredientJDBCDaoImpl implements IIngredientDao{
     public void delete(Ingredient ingredient) {
 
     }
+
+    @Override
+    public Ingredient getIngredientEagerBy(Long id) {
+        return null;
+    }
 }

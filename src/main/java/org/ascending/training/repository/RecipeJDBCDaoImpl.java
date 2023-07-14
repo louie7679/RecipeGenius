@@ -87,4 +87,9 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
     public void delete(Recipe recipe) {
 
     }
+
+    @Override
+    public Recipe getRecipeEagerBy(Long id) {
+        return null;
+    }
 }

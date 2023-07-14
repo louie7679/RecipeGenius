@@ -22,6 +22,9 @@ public class UserHibernateDaoImpl implements IUserDao{
         try {
             Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
+            if(transaction == null) {
+                throw new HibernateException("Transaction is null");
+            }
             session.save(user);
             transaction.commit();
             session.close();
@@ -31,6 +34,7 @@ public class UserHibernateDaoImpl implements IUserDao{
                 transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+            throw e;
         }
     }
 
@@ -53,6 +57,7 @@ public class UserHibernateDaoImpl implements IUserDao{
             session.close();
         } catch (HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            throw e;
         }
 
         logger.info("Get users {}", users);
@@ -70,6 +75,7 @@ public class UserHibernateDaoImpl implements IUserDao{
            session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            throw e;
         }
         return user;
     }
@@ -104,7 +110,7 @@ public class UserHibernateDaoImpl implements IUserDao{
             session.close();
             return result;
         } catch(HibernateException e) {
-            logger.error("failed to retrieve data record", e);
+            logger.error("Failed to retrieve user data record", e);
             session.close();
             return null;
         }

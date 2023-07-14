@@ -2,10 +2,7 @@ package org.ascending.training.repository;
 
 import org.ascending.training.model.Ingredient;
 import org.ascending.training.util.HibernateUtil;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +87,23 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
                 transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+        }
+    }
+
+    @Override
+    public Ingredient getIngredientEagerBy(Long id) {
+        String hql = "FROM Ingredient i LEFT JOIN FETCH i.recipes where i.id = :Id";
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            Query<Ingredient> query = session.createQuery(hql);
+            query.setParameter("Id", id);
+            Ingredient result = query.uniqueResult();
+            session.close();
+            return result;
+        } catch(HibernateException e) {
+            logger.error("Failed to retrieve ingredient data record", e);
+            session.close();
+            return null;
         }
     }
 }

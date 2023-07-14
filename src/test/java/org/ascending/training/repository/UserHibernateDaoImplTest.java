@@ -118,15 +118,14 @@ public class UserHibernateDaoImplTest {
 
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(null);
-            when(mockSession.save(user)).thenReturn(null);
-//            doThrow(HibernateException.class).doNothing().when(mockSession).close();
-//            assertThrows(HibernateException.class, () -> userDao.save(user));
+            doNothing().when(mockSession).close();
 
-            userDao.save(user);
+            assertThrows(HibernateException.class, () -> userDao.save(user));
 
-//            verify(mockSession).close();
+            verify(mockSession, never()).save(user);
             verify(mockTransaction, never()).commit();
             verify(mockTransaction, never()).rollback();
+            verify(mockSession).close();
         }
     }
 

@@ -19,21 +19,24 @@ public class UserHibernateDaoImpl implements IUserDao{
     public void save(User user) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Transaction transaction = null;
+        Session session = sessionFactory.openSession();
+        ;
         try {
-            Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            if(transaction == null) {
-                throw new HibernateException("Transaction is null");
+            if (transaction == null) {
+                logger.error("Encountered an error while saving the user: Transaction is null");
+                throw new HibernateException("Unable to save the user: Transaction is null");
             }
             session.save(user);
             transaction.commit();
             session.close();
-        } catch(HibernateException e) {
-            if(transaction != null) {
+        } catch (HibernateException e) {
+            if (transaction != null) {
                 logger.error("Save transaction failed, rolling back");
                 transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+            session.close();
             throw e;
         }
     }

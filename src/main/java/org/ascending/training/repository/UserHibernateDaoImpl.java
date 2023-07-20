@@ -23,10 +23,6 @@ public class UserHibernateDaoImpl implements IUserDao{
         ;
         try {
             transaction = session.beginTransaction();
-            if (transaction == null) {
-                logger.error("Encountered an error while saving the user: Transaction is null");
-                throw new HibernateException("Unable to save the user: Transaction is null");
-            }
             session.save(user);
             transaction.commit();
             session.close();
@@ -37,6 +33,9 @@ public class UserHibernateDaoImpl implements IUserDao{
             }
             logger.error("Open session exception or close session exception", e);
             session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
     }
@@ -47,10 +46,10 @@ public class UserHibernateDaoImpl implements IUserDao{
         //Prepare the required data model
         List<User> users = new ArrayList<>();
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        //Open a connection
+        Session session = sessionFactory.openSession();
 
         try {
-            //Open a connection
-            Session session = sessionFactory.openSession();
             //Execute a query
             String hql = "from User";
             //Extract data from result set
@@ -60,6 +59,10 @@ public class UserHibernateDaoImpl implements IUserDao{
             session.close();
         } catch (HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
 
@@ -71,13 +74,17 @@ public class UserHibernateDaoImpl implements IUserDao{
     public User getById(Long id) {
         User user = null;
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
         try {
-           Session session = sessionFactory.openSession();
            //Retrieve the object to be updated
            user = session.get(User.class, id);
            session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
         return user;
@@ -86,9 +93,9 @@ public class UserHibernateDaoImpl implements IUserDao{
     @Override
     public void delete(User user) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
         try {
-            Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             session.delete(user);
             transaction.commit();
@@ -98,7 +105,12 @@ public class UserHibernateDaoImpl implements IUserDao{
                 logger.error("Delete transaction failed, rolling back");
                 transaction.rollback();
             }
+            session.close();
             logger.error("Open session exception or close session exception", e);
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 
@@ -115,7 +127,12 @@ public class UserHibernateDaoImpl implements IUserDao{
         } catch(HibernateException e) {
             logger.error("Failed to retrieve user data record", e);
             session.close();
-            return null;
+            // return null;
+
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 }

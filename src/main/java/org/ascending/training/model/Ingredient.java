@@ -9,6 +9,12 @@ public class Ingredient {
 
     public Ingredient() {}
 
+    public Ingredient(long id, String name, String category) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ingredient_id")

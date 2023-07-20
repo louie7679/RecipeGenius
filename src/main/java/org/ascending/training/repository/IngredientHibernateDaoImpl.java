@@ -15,9 +15,9 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     @Override
     public void save(Ingredient ingredient) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
         try {
-            Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             session.save(ingredient);
             transaction.commit();
@@ -28,6 +28,11 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
                 transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 
@@ -37,10 +42,10 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
         //Prepare the required data model
         List<Ingredient> ingredients = new ArrayList<>();
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        //Open a connection
+        Session session = sessionFactory.openSession();
 
         try {
-            //Open a connection
-            Session session = sessionFactory.openSession();
             //Execute a query
             String hql = "from Ingredient";
             //Extract data from result set
@@ -50,6 +55,11 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
             session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
 
         logger.info("Get ingredients {}", ingredients);
@@ -60,13 +70,19 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     public Ingredient getById(Long id) {
         Ingredient ingredient = null;
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+
         try {
-            Session session = sessionFactory.openSession();
             //Retrieve the object to be updated
             ingredient = session.get(Ingredient.class, id);
             session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
         return ingredient;
     }
@@ -74,9 +90,10 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     @Override
     public void delete(Ingredient ingredient) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         try {
-            Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             session.delete(ingredient);
             transaction.commit();
@@ -87,6 +104,11 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
                 transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 
@@ -103,7 +125,11 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
         } catch(HibernateException e) {
             logger.error("Failed to retrieve ingredient data record", e);
             session.close();
-            return null;
+            // return null;
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 }

@@ -9,6 +9,15 @@ public class Recipe {
 
     public Recipe() {}
 
+    public Recipe(long id, String name, String description, String instructions, String dietaryRestrictions, User user) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.instructions = instructions;
+        this.dietaryRestrictions = dietaryRestrictions;
+        this.user = user;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recipe_id")

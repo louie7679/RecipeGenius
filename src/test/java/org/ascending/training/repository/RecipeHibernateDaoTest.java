@@ -1,5 +1,6 @@
 package org.ascending.training.repository;
 
+import org.ascending.training.model.Recipe;
 import org.ascending.training.model.User;
 import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
@@ -17,13 +18,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserHibernateDaoTest {
+public class RecipeHibernateDaoTest {
     @Mock
     private SessionFactory mockSessionFactory;
 
@@ -36,12 +38,12 @@ public class UserHibernateDaoTest {
     @Mock
     private Transaction mockTransaction;
 
-    private IUserDao userDao;
+    private IRecipeDao recipeDao;
 
     @Before
     public void setUp() {
         initMocks(this);
-        userDao = new UserHibernateDaoImpl();
+        recipeDao = new RecipeHibernateDaoImpl();
     }
 
     @After
@@ -59,6 +61,15 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
+
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
             // Mock HibernateUtil.getSessionFactory() to return the mockSessionFactory
             mockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(mockSessionFactory);
@@ -66,19 +77,18 @@ public class UserHibernateDaoTest {
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(mockTransaction);
-            when(mockSession.save(user)).thenReturn(user.getId());
-            // doNothing().when(mockSession).save(user);
+            when(mockSession.save(recipe)).thenReturn(recipe.getId());
             doNothing().when(mockTransaction).commit();
             doNothing().when(mockSession).close();
 
             // Call the method under test
-            userDao.save(user);
+            recipeDao.save(recipe);
 
             // Verify the expected interactions
             verify(mockSessionFactory).openSession();
             verify(mockSession).beginTransaction();
-            // Assertion: Verify that save() was called with the expected User object
-            verify(mockSession).save(user);
+            // Assertion: Verify that save() was called with the expected Recipe object
+            verify(mockSession).save(recipe);
             verify(mockTransaction).commit();
             verify(mockSession).close();
         }
@@ -94,6 +104,14 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
 
         // Mock the static method HibernateUtil.getSessionFactory()
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
@@ -102,12 +120,12 @@ public class UserHibernateDaoTest {
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(mockTransaction);
-            when(mockSession.save(user)).thenReturn(user.getId());
+            when(mockSession.save(recipe)).thenReturn(recipe.getId());
             doNothing().when(mockTransaction).commit();
             doThrow(HibernateException.class).doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(HibernateException.class, () -> userDao.save(user));
+            assertThrows(HibernateException.class, () -> recipeDao.save(recipe));
 
             verify(mockTransaction).rollback();
         }
@@ -123,6 +141,14 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
 
         // Mock the static method HibernateUtil.getSessionFactory()
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
@@ -131,12 +157,12 @@ public class UserHibernateDaoTest {
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(null);
-            when(mockSession.save(user)).thenReturn(user.getId());
+            when(mockSession.save(recipe)).thenReturn(recipe.getId());
             doThrow(NullPointerException.class).when(mockTransaction).commit();
             doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(NullPointerException.class, () -> userDao.save(user));
+            assertThrows(NullPointerException.class, () -> recipeDao.save(recipe));
 
             // Verify the expected interactions
             verify(mockTransaction, never()).rollback();
@@ -144,7 +170,7 @@ public class UserHibernateDaoTest {
     }
 
     @Test
-    public void getUsersTest_happyPath() {
+    public void getRecipesTest_happyPath() {
         // Prepare test data
         User user = new User(
                 1,
@@ -153,7 +179,15 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
-        List<User> result = List.of(user);
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
+        List<Recipe> result = List.of(recipe);
 
         // Mock the static method HibernateUtil.getSessionFactory()
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
@@ -166,7 +200,7 @@ public class UserHibernateDaoTest {
             doNothing().when(mockSession).close();
 
             // Call the method under test
-            List<User> actualResult = userDao.getUsers();
+            List<Recipe> actualResult = recipeDao.getRecipes();
 
             // Assert the expected and actual results
             assertEquals(result, actualResult);
@@ -174,7 +208,7 @@ public class UserHibernateDaoTest {
     }
 
     @Test
-    public void getUsersTest_getHibernateException() {
+    public void getRecipesTest_getHibernateException() {
         // Prepare test data
         User user = new User(
                 1,
@@ -183,7 +217,15 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
-        List<User> result = List.of(user);
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
+        List<Recipe> result = List.of(recipe);
 
         // Mock the static method HibernateUtil.getSessionFactory()
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
@@ -198,20 +240,28 @@ public class UserHibernateDaoTest {
             doThrow(HibernateException.class).doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(HibernateException.class, () -> userDao.getUsers());
+            assertThrows(HibernateException.class, () -> recipeDao.getRecipes());
         }
     }
 
     @Test
     public void getByIdTest_happyPath() {
         // Prepare test data
-        Long userId = 1L;
-        User expectedUser = new User(
-                userId,
+        User user = new User(
+                1,
                 "Emily",
                 "emily@example.com",
                 "password123",
                 "Vegan"
+        );
+        Long recipeId = 1L;
+        Recipe expectedRecipe = new Recipe(
+                recipeId,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
         );
 
         // Mock the static method HibernateUtil.getSessionFactory()
@@ -220,30 +270,38 @@ public class UserHibernateDaoTest {
 
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
-            when(mockSession.get(User.class, userId)).thenReturn(expectedUser);
+            when(mockSession.get(Recipe.class, recipeId)).thenReturn(expectedRecipe);
             doNothing().when(mockSession).close();
 
             // Call the method under test
-            User actualUser = userDao.getById(userId);
+            Recipe actualRecipe = recipeDao.getById(recipeId);
 
             // Verify the method was called with the correct parameters
-            verify(mockSession).get(User.class, userId);
+            verify(mockSession).get(Recipe.class, recipeId);
 
             // Assert the expected and actual results
-            assertEquals(expectedUser, actualUser);
+            assertEquals(expectedRecipe, actualRecipe);
         }
     }
 
     @Test
     public void getByIdTest_getHibernateException() {
         // Prepare test data
-        Long userId = 1L;
-        User expectedUser = new User(
-                userId,
+        User user = new User(
+                1,
                 "Emily",
                 "emily@example.com",
                 "password123",
                 "Vegan"
+        );
+        Long recipeId = 1L;
+        Recipe expectedRecipe = new Recipe(
+                recipeId,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
         );
 
         // Mock the static method HibernateUtil.getSessionFactory()
@@ -252,12 +310,12 @@ public class UserHibernateDaoTest {
 
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
-            when(mockSession.get(User.class, userId)).thenReturn(expectedUser);
+            when(mockSession.get(Recipe.class, recipeId)).thenReturn(expectedRecipe);
             // Throw a HibernateException for the first call, and close session for the second call
             doThrow(HibernateException.class).doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(HibernateException.class, () -> userDao.getById(userId));
+            assertThrows(HibernateException.class, () -> recipeDao.getById(recipeId));
         }
     }
 
@@ -271,6 +329,14 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
 
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
             // Mock HibernateUtil.getSessionFactory() to return the mockSessionFactory
@@ -279,18 +345,18 @@ public class UserHibernateDaoTest {
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(mockTransaction);
-            doNothing().when(mockSession).delete(user);
+            doNothing().when(mockSession).delete(recipe);
             doNothing().when(mockTransaction).commit();
             doNothing().when(mockSession).close();
 
             // Call the method under test
-            userDao.delete(user);
+            recipeDao.delete(recipe);
 
             // Verify the expected interactions
             verify(mockSessionFactory).openSession();
             verify(mockSession).beginTransaction();
             // Assertion: Verify that delete() was called with the expected User object
-            verify(mockSession).delete(user);
+            verify(mockSession).delete(recipe);
             verify(mockTransaction).commit();
             verify(mockSession).close();
         }
@@ -306,6 +372,14 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
 
         // Mock the static method HibernateUtil.getSessionFactory()
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
@@ -315,12 +389,12 @@ public class UserHibernateDaoTest {
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(mockTransaction);
             // when(mockSession.save(user)).thenReturn(null);
-            doNothing().when(mockSession).delete(user);
+            doNothing().when(mockSession).delete(recipe);
             doNothing().when(mockTransaction).commit();
             doThrow(HibernateException.class).doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(HibernateException.class, () -> userDao.delete(user));
+            assertThrows(HibernateException.class, () -> recipeDao.delete(recipe));
 
             verify(mockTransaction).rollback();
         }
@@ -336,6 +410,14 @@ public class UserHibernateDaoTest {
                 "password123",
                 "Vegan"
         );
+        Recipe recipe = new Recipe(
+                1,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
+        );
 
         // Mock the static method HibernateUtil.getSessionFactory()
         try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
@@ -344,12 +426,12 @@ public class UserHibernateDaoTest {
             // Mock the behavior of the session factory and session
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.beginTransaction()).thenReturn(null);
-            doNothing().when(mockSession).delete(user);
+            doNothing().when(mockSession).delete(recipe);
             doThrow(NullPointerException.class).when(mockTransaction).commit();
             doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(NullPointerException.class, () -> userDao.delete(user));
+            assertThrows(NullPointerException.class, () -> recipeDao.delete(recipe));
 
             // Verify the expected interactions
             verify(mockTransaction, never()).rollback();
@@ -357,15 +439,23 @@ public class UserHibernateDaoTest {
     }
 
     @Test
-    public void getUserEagerByTest_happyPath() {
+    public void getRecipeEagerByTest_happyPath() {
         // Prepare test data
-        Long userId = 1L;
-        User expectedUser = new User(
-                userId,
+        User user = new User(
+                1,
                 "Emily",
                 "emily@example.com",
                 "password123",
                 "Vegan"
+        );
+        Long recipeId = 1L;
+        Recipe expectedRecipe = new Recipe(
+                recipeId,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
         );
 
         // Mock the static method HibernateUtil.getSessionFactory()
@@ -376,26 +466,34 @@ public class UserHibernateDaoTest {
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.createQuery(any(String.class))).thenReturn(mockQuery);
             when(mockQuery.setParameter(any(String.class), any(Long.class))).thenReturn(mockQuery);
-            when(mockQuery.uniqueResult()).thenReturn(expectedUser);
+            when(mockQuery.uniqueResult()).thenReturn(expectedRecipe);
             doNothing().when(mockSession).close();
 
             // Call the method under test and store the result
-            User actualUser = userDao.getUserEagerBy(userId);
+            Recipe actualRecipe = recipeDao.getRecipeEagerBy(recipeId);
             // Assert the expected and actual results
-            assertEquals(expectedUser, actualUser);
+            assertEquals(expectedRecipe, actualRecipe);
         }
     }
 
     @Test
-    public void getUserEagerByTest_getHibernateException() {
+    public void getRecipeEagerByTest_getHibernateException() {
         // Prepare test data
-        Long userId = 1L;
-        User expectedUser = new User(
-                userId,
+        User user = new User(
+                1,
                 "Emily",
                 "emily@example.com",
                 "password123",
                 "Vegan"
+        );
+        Long recipeId = 1L;
+        Recipe expectedRecipe = new Recipe(
+                recipeId,
+                "Chocolate Cake",
+                "Decadent chocolate cake with a rich frosting.",
+                "1. Prepare cake batter.\n2. Bake in the oven.\n3. Frost the cooled cake.",
+                "None",
+                user
         );
 
         // Mock the static method HibernateUtil.getSessionFactory()
@@ -406,11 +504,11 @@ public class UserHibernateDaoTest {
             when(mockSessionFactory.openSession()).thenReturn(mockSession);
             when(mockSession.createQuery(any(String.class))).thenReturn(mockQuery);
             when(mockQuery.setParameter(any(String.class), any(Long.class))).thenReturn(mockQuery);
-            when(mockQuery.uniqueResult()).thenReturn(expectedUser);
+            when(mockQuery.uniqueResult()).thenReturn(expectedRecipe);
             doThrow(HibernateException.class).doNothing().when(mockSession).close();
 
             // Verify that a HibernateException is thrown when calling the method under test
-            assertThrows(HibernateException.class, () -> userDao.getUserEagerBy(userId));
+            assertThrows(HibernateException.class, () -> recipeDao.getRecipeEagerBy(recipeId));
         }
     }
 }

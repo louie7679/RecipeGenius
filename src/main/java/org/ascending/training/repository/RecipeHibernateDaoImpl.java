@@ -18,9 +18,10 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     @Override
     public void save(Recipe recipe) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         try {
-            Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             session.save(recipe);
             transaction.commit();
@@ -28,8 +29,14 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
         } catch(HibernateException e) {
             if(transaction != null) {
                 logger.error("Save transaction failed, rolling back");
+                transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 
@@ -39,10 +46,10 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
         //Prepare the required data model
         List<Recipe> recipes = new ArrayList<>();
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        //Open a connection
+        Session session = sessionFactory.openSession();
 
         try {
-            //Open a connection
-            Session session = sessionFactory.openSession();
             //Execute a query
             String hql = "from Recipe";
             //Extract data from result set
@@ -52,24 +59,34 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
             session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
 
         logger.info("Get recipes {}", recipes);
         return recipes;
-
     }
 
     @Override
     public Recipe getById(Long id) {
         Recipe recipe = null;
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+
         try {
-            Session session = sessionFactory.openSession();
             //Retrieve the object to be updated
             recipe = session.get(Recipe.class, id);
             session.close();
         } catch(HibernateException e) {
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
         return recipe;
     }
@@ -77,9 +94,10 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     @Override
     public void delete(Recipe recipe) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
+
         try {
-            Session session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             session.delete(recipe);
             transaction.commit();
@@ -90,6 +108,11 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
                 transaction.rollback();
             }
             logger.error("Open session exception or close session exception", e);
+            session.close();
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 
@@ -106,7 +129,11 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
         } catch(HibernateException e) {
             logger.error("Failed to retrieve recipe data record", e);
             session.close();
-            return null;
+            // return null;
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
         }
     }
 }

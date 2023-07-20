@@ -18,9 +18,9 @@ public class UserHibernateDaoImpl implements IUserDao{
     @Override
     public void save(User user) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-        Transaction transaction = null;
         Session session = sessionFactory.openSession();
-        ;
+        Transaction transaction = null;
+
         try {
             transaction = session.beginTransaction();
             session.save(user);
@@ -105,8 +105,8 @@ public class UserHibernateDaoImpl implements IUserDao{
                 logger.error("Delete transaction failed, rolling back");
                 transaction.rollback();
             }
-            session.close();
             logger.error("Open session exception or close session exception", e);
+            session.close();
             // Allow the HibernateException to propagate
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.
@@ -127,12 +127,11 @@ public class UserHibernateDaoImpl implements IUserDao{
         } catch(HibernateException e) {
             logger.error("Failed to retrieve user data record", e);
             session.close();
-            // return null;
-
+            return null;
             // Allow the HibernateException to propagate
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.
-            throw e;
+            // throw e;
         }
     }
 }

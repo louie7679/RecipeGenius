@@ -19,4 +19,5 @@ public interface IUserDao {
 
     User getUserEagerBy(Long id);
 
+    User update(User user);
 }

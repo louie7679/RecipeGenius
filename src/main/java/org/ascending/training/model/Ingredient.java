@@ -1,7 +1,7 @@
 package org.ascending.training.model;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "ingredients")
@@ -27,7 +27,7 @@ public class Ingredient {
     private String category;
 
     @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
-    private Set<Recipe> recipes;
+    private List<Recipe> recipes;
 
     public long getId() { return id; }
 
@@ -41,7 +41,7 @@ public class Ingredient {
 
     public void setCategory(String category) { this.category = category; }
 
-    public Set<Recipe> getRecipes() { return recipes; }
+    public List<Recipe> getRecipes() { return recipes; }
 
-    public void setRecipes(Set<Recipe> recipes) { this.recipes = recipes; }
+    public void setRecipes(List<Recipe> recipes) { this.recipes = recipes; }
 }

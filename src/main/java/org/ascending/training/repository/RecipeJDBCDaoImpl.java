@@ -92,4 +92,9 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
     public Recipe getRecipeEagerBy(Long id) {
         return null;
     }
+
+    @Override
+    public Recipe update(Recipe recipe) {
+        return null;
+    }
 }

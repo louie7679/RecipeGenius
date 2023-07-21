@@ -9,18 +9,23 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class RecipeHibernateDaoImpl implements IRecipeDao{
     private static final Logger logger = LoggerFactory.getLogger(RecipeHibernateDaoImpl.class);
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
     @Override
     public void save(Recipe recipe) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
-
         try {
             transaction = session.beginTransaction();
             session.save(recipe);
@@ -45,10 +50,8 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
         logger.info("Start to getRecipes from Postgres via Hibernate.");
         //Prepare the required data model
         List<Recipe> recipes = new ArrayList<>();
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         //Open a connection
         Session session = sessionFactory.openSession();
-
         try {
             //Execute a query
             String hql = "from Recipe";
@@ -65,7 +68,6 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
             // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
-
         logger.info("Get recipes {}", recipes);
         return recipes;
     }
@@ -73,9 +75,7 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     @Override
     public Recipe getById(Long id) {
         Recipe recipe = null;
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
-
         try {
             //Retrieve the object to be updated
             recipe = session.get(Recipe.class, id);
@@ -93,10 +93,8 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
 
     @Override
     public void delete(Recipe recipe) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
-
         try {
             transaction = session.beginTransaction();
             session.delete(recipe);
@@ -119,7 +117,7 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     @Override
     public Recipe getRecipeEagerBy(Long id) {
         String hql = "FROM Recipe r LEFT JOIN FETCH r.ingredients where r.id = :Id";
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = sessionFactory.openSession();
         try {
             Query<Recipe> query = session.createQuery(hql);
             query.setParameter("Id", id);
@@ -134,6 +132,27 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.
             throw e;
+        }
+    }
+
+    @Override
+    public Recipe update(Recipe recipe) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.update(recipe);
+            transaction.commit();
+            Recipe r = getById(recipe.getId());
+            session.close();
+            return r;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            logger.error("failed to insert record", e);
+            session.close();
+            return null;
         }
     }
 }

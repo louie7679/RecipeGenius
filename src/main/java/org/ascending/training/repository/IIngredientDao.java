@@ -18,4 +18,6 @@ public interface IIngredientDao {
     void delete(Ingredient ingredient);
 
     Ingredient getIngredientEagerBy(Long id);
+
+    Ingredient update(Ingredient ingredient);
 }

@@ -9,18 +9,23 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class UserHibernateDaoImpl implements IUserDao{
     private static final Logger logger = LoggerFactory.getLogger(UserHibernateDaoImpl.class);
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
     @Override
     public void save(User user) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
-
         try {
             transaction = session.beginTransaction();
             session.save(user);
@@ -45,10 +50,8 @@ public class UserHibernateDaoImpl implements IUserDao{
         logger.info("Start to getUsers from Postgres via Hibernate.");
         //Prepare the required data model
         List<User> users = new ArrayList<>();
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         //Open a connection
         Session session = sessionFactory.openSession();
-
         try {
             //Execute a query
             String hql = "from User";
@@ -65,7 +68,6 @@ public class UserHibernateDaoImpl implements IUserDao{
             // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
-
         logger.info("Get users {}", users);
         return users;
     }
@@ -73,7 +75,6 @@ public class UserHibernateDaoImpl implements IUserDao{
     @Override
     public User getById(Long id) {
         User user = null;
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         try {
            //Retrieve the object to be updated
@@ -92,7 +93,6 @@ public class UserHibernateDaoImpl implements IUserDao{
 
     @Override
     public void delete(User user) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         try {
@@ -117,7 +117,7 @@ public class UserHibernateDaoImpl implements IUserDao{
     @Override
     public User getUserEagerBy(Long id) {
         String hql = "FROM User u LEFT JOIN FETCH u.recipes where u.id = :Id"; //LEFT JOIN FETCH: HQL里面的left join
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = sessionFactory.openSession();
         try {
             Query<User> query = session.createQuery(hql);
             query.setParameter("Id", id);
@@ -132,6 +132,27 @@ public class UserHibernateDaoImpl implements IUserDao{
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.
             // throw e;
+        }
+    }
+
+    @Override
+    public User update(User user) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.update(user);
+            transaction.commit();
+            User u = getById(user.getId());
+            session.close();
+            return u;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            logger.error("failed to insert record", e);
+            session.close();
+            return null;
         }
     }
 }

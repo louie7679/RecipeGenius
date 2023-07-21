@@ -19,4 +19,6 @@ public interface IRecipeDao {
     void delete(Recipe recipe);
 
     Recipe getRecipeEagerBy(Long id);
+
+    Recipe update(Recipe recipe);
 }

@@ -84,4 +84,9 @@ public class IngredientJDBCDaoImpl implements IIngredientDao{
     public Ingredient getIngredientEagerBy(Long id) {
         return null;
     }
+
+    @Override
+    public Ingredient update(Ingredient ingredient) {
+        return null;
+    }
 }

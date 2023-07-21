@@ -88,4 +88,9 @@ public class UserJDBCDaoImpl implements IUserDao{
     public User getUserEagerBy(Long id) {
         return null;
     }
+
+    @Override
+    public User update(User user) {
+        return null;
+    }
 }

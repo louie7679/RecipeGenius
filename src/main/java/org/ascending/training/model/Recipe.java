@@ -1,7 +1,7 @@
 package org.ascending.training.model;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "recipes")
@@ -47,7 +47,7 @@ public class Recipe {
             joinColumns = { @JoinColumn(name = "recipe_id") },
             inverseJoinColumns = { @JoinColumn(name = "ingredient_id")}
     )
-    private Set<Ingredient> ingredients;
+    private List<Ingredient> ingredients;
 
     public long getId() { return id; }
 
@@ -73,7 +73,7 @@ public class Recipe {
 
     public void setUser(User user) { this.user = user; }
 
-    public Set<Ingredient> getIngredients() { return ingredients; }
+    public List<Ingredient> getIngredients() { return ingredients; }
 
-    public void setIngredients(Set<Ingredient> ingredients) { this.ingredients = ingredients; }
+    public void setIngredients(List<Ingredient> ingredients) { this.ingredients = ingredients; }
 }

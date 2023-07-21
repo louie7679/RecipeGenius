@@ -6,15 +6,21 @@ import org.hibernate.*;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class IngredientHibernateDaoImpl implements IIngredientDao{
     private static final Logger logger = LoggerFactory.getLogger(IngredientHibernateDaoImpl.class);
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
     @Override
     public void save(Ingredient ingredient) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         try {
@@ -41,7 +47,6 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
         logger.info("Start to getIngredients from Postgres via Hibernate.");
         //Prepare the required data model
         List<Ingredient> ingredients = new ArrayList<>();
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         //Open a connection
         Session session = sessionFactory.openSession();
 
@@ -61,7 +66,6 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
             // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
-
         logger.info("Get ingredients {}", ingredients);
         return ingredients;
     }
@@ -69,9 +73,7 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     @Override
     public Ingredient getById(Long id) {
         Ingredient ingredient = null;
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
-
         try {
             //Retrieve the object to be updated
             ingredient = session.get(Ingredient.class, id);
@@ -89,10 +91,8 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
 
     @Override
     public void delete(Ingredient ingredient) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
-
         try {
             transaction = session.beginTransaction();
             session.delete(ingredient);
@@ -115,7 +115,7 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     @Override
     public Ingredient getIngredientEagerBy(Long id) {
         String hql = "FROM Ingredient i LEFT JOIN FETCH i.recipes where i.id = :Id";
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = sessionFactory.openSession();
         try {
             Query<Ingredient> query = session.createQuery(hql);
             query.setParameter("Id", id);
@@ -131,5 +131,27 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
             // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
+    }
+
+    @Override
+    public Ingredient update(Ingredient ingredient) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.update(ingredient);
+            transaction.commit();
+            Ingredient i = getById(ingredient.getId());
+            session.close();
+            return i;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            logger.error("failed to insert record", e);
+            session.close();
+            return null;
+        }
+    }
     }
 }

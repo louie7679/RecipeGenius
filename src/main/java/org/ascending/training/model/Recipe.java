@@ -1,5 +1,7 @@
 package org.ascending.training.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -35,9 +37,6 @@ public class Recipe {
     @Column(name = "dietary_restrictions")
     private String dietaryRestrictions;
 
-    //@Column(name = "usr_id")
-    //private long userId;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -47,6 +46,7 @@ public class Recipe {
             joinColumns = { @JoinColumn(name = "recipe_id") },
             inverseJoinColumns = { @JoinColumn(name = "ingredient_id")}
     )
+    @JsonIgnore
     private List<Ingredient> ingredients;
 
     public long getId() { return id; }

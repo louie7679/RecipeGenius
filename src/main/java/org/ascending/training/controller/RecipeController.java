@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/recipe")
 public class RecipeController {
-    private final Logger logger = LoggerFactory.getLogger(RecipeController.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private RecipeService recipeService;

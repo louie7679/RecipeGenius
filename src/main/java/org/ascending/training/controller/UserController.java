@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserService userService;
@@ -28,6 +28,15 @@ public class UserController {
     public User getUserById(@PathVariable(name = "Id") Long id) {
         logger.info("This is user controller, get by {}", id);
         return userService.getBy(id);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, params = {"password"})
+    public User updateUserPassword(@PathVariable("id") Long id, @RequestParam("password") String password) {
+        logger.info("pass in variable id: {} and password {}", id.toString(), password);
+        User user = userService.getBy(id);
+        user.setPassword(password);
+        user = userService.update(user);
+        return user;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, params = {"dietaryRestrictions"})

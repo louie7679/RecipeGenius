@@ -153,5 +153,4 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
             return null;
         }
     }
-    }
 }

@@ -1,5 +1,7 @@
 package org.ascending.training.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class Ingredient {
     private String category;
 
     @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Recipe> recipes;
 
     public long getId() { return id; }

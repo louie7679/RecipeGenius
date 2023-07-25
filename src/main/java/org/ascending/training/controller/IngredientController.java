@@ -1,19 +1,18 @@
 package org.ascending.training.controller;
 
 import org.ascending.training.model.Ingredient;
-import org.ascending.training.model.Recipe;
 import org.ascending.training.service.IngredientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Service
+@RestController
+@RequestMapping(value = "/ingredient")
 public class IngredientController {
-    private final Logger logger = LoggerFactory.getLogger(RecipeController.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private IngredientService ingredientService;

@@ -10,7 +10,5 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 public class ApplicationBootstrap {
     public static void main(String[] args) {
         SpringApplication.run(ApplicationBootstrap.class, args);
-
     }
-
 }

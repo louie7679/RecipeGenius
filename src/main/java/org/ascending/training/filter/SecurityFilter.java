@@ -53,6 +53,7 @@ public class SecurityFilter implements Filter {
             return HttpServletResponse.SC_ACCEPTED;
         }
 
+        String verb = req.getMethod();
         try {
             String token = req.getHeader("Authorization").replaceAll("^(.*?)", "");
             if (token == null || token.isEmpty()){
@@ -66,6 +67,24 @@ public class SecurityFilter implements Filter {
                 SystemUser u = systemUserService.getSystemUserById(Long.valueOf(claims.getId()));
                 if (u != null) {
                     statusCode = HttpServletResponse.SC_ACCEPTED;
+                }
+            }
+
+            String allowedResources = "/";
+            switch (verb) {
+                case "GET": allowedResources = (String) claims.get("allowedResources");
+                    break;
+                case "POST": allowedResources = (String) claims.get("allowedCreateResources");
+                    break;
+                case "PUT": allowedResources = (String) claims.get("allowedUpdateResources");
+                    break;
+                case "DELETE": allowedResources = (String) claims.get("allowedDeleteResources");
+            }
+
+            for(String s : allowedResources.split(",")) {
+                if(uri.trim().toLowerCase().startsWith(s.trim().toLowerCase())) {
+                    statusCode = HttpServletResponse.SC_ACCEPTED;
+                    break;
                 }
             }
         } catch (Exception e) {

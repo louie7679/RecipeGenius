@@ -94,4 +94,20 @@ public class Role {
     public void setSystemUsers(List<SystemUser> systemUsers) {
         this.systemUsers = systemUsers;
     }
+
+    public boolean isAllowedRead() {
+        return allowedRead;
+    }
+
+    public boolean isAllowedCreate() {
+        return allowedCreate;
+    }
+
+    public boolean isAllowedUpdate() {
+        return allowedUpdate;
+    }
+
+    public boolean isAllowedDelete() {
+        return allowedDelete;
+    }
 }

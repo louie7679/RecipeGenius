@@ -1,5 +1,6 @@
 package org.ascending.training.repository;
 
+import org.ascending.training.model.Role;
 import org.ascending.training.model.SystemUser;
 import org.ascending.training.repository.exception.UserNotFoundException;
 import org.hibernate.HibernateException;
@@ -32,6 +33,28 @@ public class SystemUserHibernateDaoImpl implements ISystemUserDao{
         } catch (HibernateException e) {
             if (transaction != null) {
                 logger.error("Save transaction failed, rolling back");
+                transaction.rollback();
+            }
+            logger.error("Session close exception try again", e);
+            session.close();
+            return false;
+        }
+    }
+
+    public boolean saveRole(SystemUser systemUser, Role role) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            // Update the system user's roles by adding the new role to their existing list before saving
+            systemUser.getRoles().add(role);
+            session.save(systemUser);
+            transaction.commit();
+            session.close();
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                logger.error("Save system user role transaction failed, rolling back");
                 transaction.rollback();
             }
             logger.error("Session close exception try again", e);
@@ -76,8 +99,8 @@ public class SystemUserHibernateDaoImpl implements ISystemUserDao{
 
     @Override
     public SystemUser getSystemUserByCredentials(String email, String password) throws Exception {
-        // String hql = "FROM SystemUser as u where (lower(u.email) = :email or lower(u.name) = :email) and u.password = :password";
-        String hql = "FROM SystemUser as u where lower(u.email) = :email and u.password = :password";
+        String hql = "FROM SystemUser as u where (lower(u.email) = :email or lower(u.name) = :email) and u.password = :password";
+        // String hql = "FROM SystemUser as u where lower(u.email) = :email and u.password = :password";
         logger.info(String.format("SystemUser email: %s, password: %s", email, password));
 
         try{

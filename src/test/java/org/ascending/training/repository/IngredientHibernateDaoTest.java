@@ -1,7 +1,6 @@
 package org.ascending.training.repository;
 
 import org.ascending.training.model.Ingredient;
-import org.ascending.training.model.User;
 import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

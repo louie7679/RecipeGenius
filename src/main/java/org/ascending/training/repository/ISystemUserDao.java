@@ -1,9 +1,12 @@
 package org.ascending.training.repository;
 
+import org.ascending.training.model.Role;
 import org.ascending.training.model.SystemUser;
 
 public interface ISystemUserDao {
     boolean save(SystemUser systemUser);
+
+    boolean saveRole(SystemUser systemUser, Role role);
 
     SystemUser getSystemUserByEmail(String email);
 

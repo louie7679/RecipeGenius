@@ -27,7 +27,7 @@ public class SecurityFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Set<String> ALLOWED_PATHS = new HashSet<>(Arrays.asList("", "/login", "logout", "register"));
-    private static final Set<String> IGNORED_PATH = new HashSet<>(Arrays.asList("/auth"));
+    private static final Set<String> IGNORED_PATH = new HashSet<>(Arrays.asList("/auth", "/signup"));
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -54,6 +54,7 @@ public class SecurityFilter implements Filter {
         }
 
         String verb = req.getMethod();
+
         try {
             String token = req.getHeader("Authorization").replaceAll("^(.*?)", "");
             if (token == null || token.isEmpty()){
@@ -65,24 +66,29 @@ public class SecurityFilter implements Filter {
 
             if (claims.getId() != null) {
                 SystemUser u = systemUserService.getSystemUserById(Long.valueOf(claims.getId()));
-                if (u != null) {
-                    statusCode = HttpServletResponse.SC_ACCEPTED;
-                }
+                 if (u == null) {
+                    return statusCode;
+                 }
             }
 
-            String allowedResources = "/";
+            String allowedResources = "";
             switch (verb) {
                 case "GET": allowedResources = (String) claims.get("allowedResources");
                     break;
-                case "POST": allowedResources = (String) claims.get("allowedCreateResources");
+                case "POST":
+                case "PATCH": allowedResources = (String) claims.get("allowedCreateResources");
                     break;
                 case "PUT": allowedResources = (String) claims.get("allowedUpdateResources");
                     break;
                 case "DELETE": allowedResources = (String) claims.get("allowedDeleteResources");
+                    break;
             }
 
             for(String s : allowedResources.split(",")) {
-                if(uri.trim().toLowerCase().startsWith(s.trim().toLowerCase())) {
+                String uri_trim = uri.trim().toLowerCase();
+                String s_trim = s.trim().toLowerCase();
+                logger.info("url - {}; s - {}; {} - {}", uri_trim, "\"" + s_trim + "\"", uri_trim.startsWith(s_trim), !s_trim.equals(""));
+                if (!s_trim.equals("") && uri_trim.startsWith(s_trim)) {
                     statusCode = HttpServletResponse.SC_ACCEPTED;
                     break;
                 }

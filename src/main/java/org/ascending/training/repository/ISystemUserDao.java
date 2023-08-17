@@ -3,6 +3,8 @@ package org.ascending.training.repository;
 import org.ascending.training.model.Role;
 import org.ascending.training.model.SystemUser;
 
+import java.util.List;
+
 public interface ISystemUserDao {
     boolean save(SystemUser systemUser);
 
@@ -13,4 +15,8 @@ public interface ISystemUserDao {
     SystemUser getSystemUserById(Long id);
 
     SystemUser getSystemUserByCredentials(String email, String password) throws Exception;
+
+    List<Role> getSystemUserRole(SystemUser systemUser);
+
+    void delete(SystemUser systemUser);
 }

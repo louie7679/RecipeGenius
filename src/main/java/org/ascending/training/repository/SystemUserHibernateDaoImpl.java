@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Repository
 public class SystemUserHibernateDaoImpl implements ISystemUserDao{
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,8 +50,13 @@ public class SystemUserHibernateDaoImpl implements ISystemUserDao{
         try {
             transaction = session.beginTransaction();
             // Update the system user's roles by adding the new role to their existing list before saving
-            systemUser.getRoles().add(role);
-            session.save(systemUser);
+            List<Role> roles = systemUser.getRoles();
+            if (roles == null) {
+                roles = new ArrayList<>();
+                systemUser.setRoles(roles);
+            }
+            roles.add(role);
+            session.update(systemUser);
             transaction.commit();
             session.close();
             return true;
@@ -99,8 +107,8 @@ public class SystemUserHibernateDaoImpl implements ISystemUserDao{
 
     @Override
     public SystemUser getSystemUserByCredentials(String email, String password) throws Exception {
-        String hql = "FROM SystemUser as u where (lower(u.email) = :email or lower(u.name) = :email) and u.password = :password";
-        // String hql = "FROM SystemUser as u where lower(u.email) = :email and u.password = :password";
+        // String hql = "FROM SystemUser as u where (lower(u.email) = :email or lower(u.name) = :email) and u.password = :password";
+        String hql = "FROM SystemUser as u where lower(u.email) = :email and u.password = :password";
         logger.info(String.format("SystemUser email: %s, password: %s", email, password));
 
         try{
@@ -112,6 +120,43 @@ public class SystemUserHibernateDaoImpl implements ISystemUserDao{
         } catch(Exception e) {
             logger.error("error: {}", e.getMessage());
             throw new UserNotFoundException("can't find system user record with email = " + email + ", password = " + password);
+        }
+    }
+
+    @Override
+    public List<Role> getSystemUserRole(SystemUser systemUser) {
+        Session session = sessionFactory.openSession();
+        String hql = "SELECT r FROM Role r JOIN r.systemUsers u WHERE u = :user";
+        try {
+            Query<Role> query = session.createQuery(hql, Role.class);
+            query.setParameter("user", systemUser);
+            List<Role> roles = query.getResultList();
+            session.close();
+            return roles;
+        } catch (HibernateException e) {
+            logger.error("Session close exception or query exception", e);
+            session.close();
+            return null;
+        }
+    }
+
+    @Override
+    public void delete(SystemUser systemUser) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.delete(systemUser);
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
+            logger.error("Open session exception or close session exception", e);
+            session.close();
+            throw e;
         }
     }
 }

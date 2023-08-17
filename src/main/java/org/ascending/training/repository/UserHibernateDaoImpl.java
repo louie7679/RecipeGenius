@@ -100,8 +100,8 @@ public class UserHibernateDaoImpl implements IUserDao{
             session.delete(user);
             transaction.commit();
             session.close();
-        } catch(HibernateException e) {
-            if(transaction != null) {
+        } catch (HibernateException e) {
+            if (transaction != null) {
                 logger.error("Delete transaction failed, rolling back");
                 transaction.rollback();
             }

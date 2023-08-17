@@ -12,6 +12,10 @@ public class RoleService {
     @Autowired
     IRoleDao roleDao;
 
+    public void save(Role role) {
+        roleDao.save(role);
+    }
+
     public List<Role> getRoles() {
         return roleDao.getRoles();
     }
@@ -22,5 +26,9 @@ public class RoleService {
 
     public Role update(Role role) {
         return roleDao.update(role);
+    }
+
+    public void delete(Role role) {
+        roleDao.delete(role);
     }
 }

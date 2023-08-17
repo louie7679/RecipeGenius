@@ -94,7 +94,8 @@ public class SecurityFilter implements Filter {
                 }
             }
         } catch (Exception e) {
-                logger.info("Cannot get token");
+            logger.info("Cannot get token");
+            e.printStackTrace();
         }
         return statusCode;
     }

@@ -3,9 +3,11 @@ package org.ascending.training.service;
 import org.ascending.training.model.Role;
 import org.ascending.training.model.SystemUser;
 import org.ascending.training.repository.ISystemUserDao;
-import org.ascending.training.repository.SystemUserHibernateDaoImpl;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SystemUserService {
@@ -32,6 +34,15 @@ public class SystemUserService {
     }
 
     public SystemUser getSystemUserById(Long id) {
-        return systemUserDao.getSystemUserById(id);
+        SystemUser systemUser = systemUserDao.getSystemUserById(id);
+        return systemUser;
+    }
+
+    public List<Role> getSystemUserRole(SystemUser systemUser) {
+        return systemUserDao.getSystemUserRole(systemUser);
+    }
+
+    public void delete(SystemUser systemUser) {
+        systemUserDao.delete(systemUser);
     }
 }

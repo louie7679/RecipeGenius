@@ -22,6 +22,26 @@ public class RoleHibernateDaoImpl implements IRoleDao{
     public SessionFactory sessionFactory;
 
     @Override
+    public void save(Role role) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.save(role);
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                logger.error("Save transaction failed, rolling back");
+                transaction.rollback();
+            }
+            logger.error("Open session exception or close session exception", e);
+            session.close();
+            throw e;
+        }
+    }
+
+    @Override
     public List<Role> getRoles() {
         //Prepare the required data model
         List<Role> roles = new ArrayList<>();
@@ -46,7 +66,7 @@ public class RoleHibernateDaoImpl implements IRoleDao{
     @Override
     public Role getById(Long id) {
         Session session = sessionFactory.openSession();
-        String hql = "FROM Roles r WHERE id = :Id";
+        String hql = "FROM Role r WHERE id = :Id";
         try {
             Query<Role> query = session.createQuery(hql);
             query.setParameter("Id", id);
@@ -78,6 +98,26 @@ public class RoleHibernateDaoImpl implements IRoleDao{
             logger.error("failed to insert record", e);
             session.close();
             return null;
+        }
+    }
+
+    @Override
+    public void delete(Role role) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.delete(role);
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
+            logger.error("Open session exception or close session exception", e);
+            session.close();
+            throw e;
         }
     }
 }

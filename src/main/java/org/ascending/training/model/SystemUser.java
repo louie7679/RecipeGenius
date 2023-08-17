@@ -1,5 +1,6 @@
 package org.ascending.training.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.*;
@@ -35,6 +36,7 @@ public class SystemUser {
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id")}
     )
+    @JsonIgnore
     private List<Role> roles;
 
     public long getId() {

@@ -1,7 +1,6 @@
 package org.ascending.training.repository;
 
-import org.ascending.training.model.Recipe;
-import org.ascending.training.model.User;
+import org.ascending.training.model.Ingredient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,23 +8,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class RecipeJDBCDaoImpl implements IRecipeDao{
+public class IngredientJDBCDaoImpl implements IIngredientDao{
     static final String DB_URL = "jdbc:postgresql://localhost:5430/RecipeRecDB";
     static final String USER = "admin";
     static final String PASS = "Training123!";
 
     @Override
-    public void save(Recipe recipe) {
+    public void save(Ingredient ingredient) {
 
     }
 
     @Override
-    public List<Recipe> getRecipes() {
+    public List<Ingredient> getIngredients() {
         Logger logger = LoggerFactory.getLogger(getClass());
         logger.debug("Start to getRecipes from Postgres via JDBC.");
         //Step1: Prepare the required data model
-        List<Recipe> recipes = new ArrayList<>();
+        List<Ingredient> ingredients = new ArrayList<>();
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
@@ -37,27 +35,21 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
             //Step3: Execute a query
             stmt = conn.createStatement();
             String sql;
-            sql = "SELECT * FROM Recipes";
+            sql = "SELECT * FROM Ingredients";
             rs = stmt.executeQuery(sql);
             logger.info("Connects to DB successfully and execute the query.");
 
             //Step4: Extract data from result set
             while(rs.next()) {
-                Long recipeId = rs.getLong("recipe_id");
-                String recipeName = rs.getString("recipe_name");
-                String description = rs.getString("description");
-                String instructions = rs.getString("instructions");
-                String dietaryRestrictions = rs.getString("dietaryRestrictions");
-                // Long userId = rs.getLong("user_id");
+                Long ingredientId = rs.getLong("ingredient_id");
+                String ingredientName = rs.getString("ingredient_name");
+                String category = rs.getString("category");
 
-                Recipe recipe = new Recipe();
-                recipe.setId(recipeId);
-                recipe.setName(recipeName);
-                recipe.setDescription(description);
-                recipe.setInstructions(instructions);
-                recipe.setDietaryRestrictions(dietaryRestrictions);
-                // recipe.setUserId();
-                recipes.add(recipe);
+                Ingredient ingredient = new Ingredient();
+                ingredient.setId(ingredientId);
+                ingredient.setName(ingredientName);
+                ingredient.setCategory(category);
+                ingredients.add(ingredient);
             }
 
         } catch (SQLException e) {
@@ -74,27 +66,31 @@ public class RecipeJDBCDaoImpl implements IRecipeDao{
                 //e.printStackTrace();
             }
         }
-        logger.info("Finish getRecipes {}", recipes);
-        return recipes;
+        logger.info("Finish getIngredients {}", ingredients);
+        return ingredients;
     }
 
     @Override
-    public Recipe getById(Long id) {
+    public Ingredient getById(Long id) {
         return null;
     }
 
     @Override
-    public void delete(Recipe recipe) {
-
-    }
-
-    @Override
-    public Recipe getRecipeEagerBy(Long id) {
+    public Ingredient getByName(String name) {
         return null;
     }
 
     @Override
-    public Recipe update(Recipe recipe) {
+    public Ingredient getIngredientEagerBy(Long id) {
+        return null;
+    }
+
+    @Override
+    public void delete(Ingredient ingredient) {
+    }
+
+    @Override
+    public Ingredient update(Ingredient ingredient) {
         return null;
     }
 }

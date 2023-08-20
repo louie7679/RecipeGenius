@@ -14,10 +14,10 @@ public interface IUserDao {
     //Update
     User getById(Long id);
 
+    User getUserEagerBy(Long id);
+
     //Delete
     void delete(User user);
-
-    User getUserEagerBy(Long id);
 
     User update(User user);
 }

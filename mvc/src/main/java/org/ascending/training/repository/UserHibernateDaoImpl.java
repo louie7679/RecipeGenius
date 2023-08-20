@@ -92,6 +92,27 @@ public class UserHibernateDaoImpl implements IUserDao{
     }
 
     @Override
+    public User getUserEagerBy(Long id) {
+        String hql = "FROM User u LEFT JOIN FETCH u.recipes where u.id = :Id"; //LEFT JOIN FETCH: HQL里面的left join
+        Session session = sessionFactory.openSession();
+        try {
+            Query<User> query = session.createQuery(hql);
+            query.setParameter("Id", id);
+            User result = query.uniqueResult();
+            session.close();
+            return result;
+        } catch(HibernateException e) {
+            logger.error("Failed to retrieve user data record", e);
+            session.close();
+            return null;
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            // throw e;
+        }
+    }
+
+    @Override
     public void delete(User user) {
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
@@ -111,27 +132,6 @@ public class UserHibernateDaoImpl implements IUserDao{
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.
             throw e;
-        }
-    }
-
-    @Override
-    public User getUserEagerBy(Long id) {
-        String hql = "FROM User u LEFT JOIN FETCH u.recipes where u.id = :Id"; //LEFT JOIN FETCH: HQL里面的left join
-        Session session = sessionFactory.openSession();
-        try {
-            Query<User> query = session.createQuery(hql);
-            query.setParameter("Id", id);
-            User result = query.uniqueResult();
-            session.close();
-            return result;
-        } catch(HibernateException e) {
-            logger.error("Failed to retrieve user data record", e);
-            session.close();
-            return null;
-            // Allow the HibernateException to propagate
-            // NOTE: The following line is for testing purposes only.
-            // Uncomment it during testing, and comment it out in production code.
-            // throw e;
         }
     }
 

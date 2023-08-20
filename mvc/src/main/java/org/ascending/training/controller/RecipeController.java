@@ -29,6 +29,15 @@ public class RecipeController {
         return recipeService.getBy(id);
     }
 
+    @RequestMapping(value = "/matchByIngredients", method = RequestMethod.GET, params = {"ingredients"})
+    public List<Recipe> findRecipesByIngredients(@RequestParam("ingredients") List<String> userIngredients) {
+        logger.info("Received request to match recipes by ingredients: {}", userIngredients);
+        List<Recipe> matchedRecipes = recipeService.findRecipesByIngredients(userIngredients);
+        logger.info("Matching recipes completed. Matched recipes: {}", matchedRecipes);
+        return matchedRecipes;
+    }
+
+
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, params = {"name"})
     public Recipe updateRecipeName(@PathVariable("id") Long id, @RequestParam("name") String name) {
         logger.info("pass in variable id: {} and name {}", id.toString(), name);

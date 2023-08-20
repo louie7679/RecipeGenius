@@ -90,25 +90,19 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
     }
 
     @Override
-    public void delete(Ingredient ingredient) {
+    public Ingredient getByName(String name) {
         Session session = sessionFactory.openSession();
-        Transaction transaction = null;
+        String hql = "FROM Ingredient i WHERE LOWER(i.name) = :Name";
         try {
-            transaction = session.beginTransaction();
-            session.delete(ingredient);
-            transaction.commit();
+            Query<Ingredient> query = session.createQuery(hql);
+            query.setParameter("Name", name.toLowerCase());
+            Ingredient result = query.uniqueResult();
             session.close();
+            return result;
         } catch(HibernateException e) {
-            if(transaction != null) {
-                logger.error("Delete transaction failed, rolling back");
-                transaction.rollback();
-            }
-            logger.error("Open session exception or close session exception", e);
+            logger.error("Failed to retrieve ingredient data record for name: " + name, e);
             session.close();
-            // Allow the HibernateException to propagate
-            // NOTE: The following line is for testing purposes only.
-            // Uncomment it during testing, and comment it out in production code.
-            throw e;
+            throw new RuntimeException("Failed to retrieve ingredient by name", e);
         }
     }
 
@@ -126,6 +120,29 @@ public class IngredientHibernateDaoImpl implements IIngredientDao{
             logger.error("Failed to retrieve ingredient data record", e);
             session.close();
             // return null;
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
+        }
+    }
+
+    @Override
+    public void delete(Ingredient ingredient) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.delete(ingredient);
+            transaction.commit();
+            session.close();
+        } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
+            logger.error("Open session exception or close session exception", e);
+            session.close();
             // Allow the HibernateException to propagate
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.

@@ -14,10 +14,12 @@ public interface IIngredientDao {
     //Update = get + ... + save
     Ingredient getById(Long id);
 
-    //Delete
-    void delete(Ingredient ingredient);
+    Ingredient getByName(String name);
 
     Ingredient getIngredientEagerBy(Long id);
+
+    //Delete
+    void delete(Ingredient ingredient);
 
     Ingredient update(Ingredient ingredient);
 }

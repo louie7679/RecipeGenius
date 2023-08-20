@@ -25,7 +25,6 @@ public class UserService {
     }
 
     public void delete(User user) {
-
         userDao.delete(user);
     }
 

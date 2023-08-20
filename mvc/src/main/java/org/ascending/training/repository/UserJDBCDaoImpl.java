@@ -80,13 +80,13 @@ public class UserJDBCDaoImpl implements IUserDao{
     }
 
     @Override
-    public void delete(User user) {
-
+    public User getUserEagerBy(Long id) {
+        return null;
     }
 
     @Override
-    public User getUserEagerBy(Long id) {
-        return null;
+    public void delete(User user) {
+
     }
 
     @Override

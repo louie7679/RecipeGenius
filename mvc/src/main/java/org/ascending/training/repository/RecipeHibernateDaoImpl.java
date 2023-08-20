@@ -1,7 +1,6 @@
 package org.ascending.training.repository;
 
 import org.ascending.training.model.Recipe;
-import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,8 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class RecipeHibernateDaoImpl implements IRecipeDao{
@@ -92,26 +90,43 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
     }
 
     @Override
-    public void delete(Recipe recipe) {
+    public List<Recipe> getRecipesByIngredient(Long ingredientId) {
+        String hql = "SELECT DISTINCT r " +
+                "FROM Recipe r " +
+                "JOIN r.ingredients i " +
+                "WHERE i.id = :ingredientId";
         Session session = sessionFactory.openSession();
-        Transaction transaction = null;
         try {
-            transaction = session.beginTransaction();
-            session.delete(recipe);
-            transaction.commit();
+            Query<Recipe> query = session.createQuery(hql);
+            query.setParameter("ingredientId", ingredientId);
+            List<Recipe> recipes = query.list();
             session.close();
-        } catch(HibernateException e) {
-            if(transaction != null) {
-                logger.error("Delete transaction failed, rolling back");
-                transaction.rollback();
-            }
-            logger.error("Open session exception or close session exception", e);
+            return recipes;
+        } catch (HibernateException e) {
+            logger.error("Failed to retrieve recipes by ingredient", e);
             session.close();
-            // Allow the HibernateException to propagate
-            // NOTE: The following line is for testing purposes only.
-            // Uncomment it during testing, and comment it out in production code.
             throw e;
         }
+    }
+
+    @Override
+    public Set<Long> getIngredientIdsForRecipe(Long recipeId) {
+        String hql = "SELECT DISTINCT i.id " +
+                "FROM Recipe r " +
+                "JOIN r.ingredients i " +
+                "WHERE r.id = :recipeId";
+        Session session = sessionFactory.openSession();
+        try {
+            Query<Long> query = session.createQuery(hql, Long.class);
+            query.setParameter("recipeId", recipeId);
+            List<Long> ingredientIds = query.list();
+            session.close();
+            return new HashSet<>(ingredientIds);
+        } catch (HibernateException e) {
+            logger.error("Failed to retrieve ingredient IDs for recipe", e);
+            session.close();
+        }
+        return Collections.emptySet();
     }
 
     @Override
@@ -128,6 +143,29 @@ public class RecipeHibernateDaoImpl implements IRecipeDao{
             logger.error("Failed to retrieve recipe data record", e);
             session.close();
             // return null;
+            // Allow the HibernateException to propagate
+            // NOTE: The following line is for testing purposes only.
+            // Uncomment it during testing, and comment it out in production code.
+            throw e;
+        }
+    }
+
+    @Override
+    public void delete(Recipe recipe) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.delete(recipe);
+            transaction.commit();
+            session.close();
+        } catch(HibernateException e) {
+            if(transaction != null) {
+                logger.error("Delete transaction failed, rolling back");
+                transaction.rollback();
+            }
+            logger.error("Open session exception or close session exception", e);
+            session.close();
             // Allow the HibernateException to propagate
             // NOTE: The following line is for testing purposes only.
             // Uncomment it during testing, and comment it out in production code.

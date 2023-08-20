@@ -1,29 +1,32 @@
 package org.ascending.training.repository;
 
-import org.ascending.training.model.Ingredient;
+import org.ascending.training.model.Recipe;
+import org.ascending.training.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public class IngredientJDBCDaoImpl implements IIngredientDao{
+
+public class RecipeJDBCDaoImpl implements IRecipeDao{
     static final String DB_URL = "jdbc:postgresql://localhost:5430/RecipeRecDB";
     static final String USER = "admin";
     static final String PASS = "Training123!";
 
     @Override
-    public void save(Ingredient ingredient) {
+    public void save(Recipe recipe) {
 
     }
 
     @Override
-    public List<Ingredient> getIngredients() {
+    public List<Recipe> getRecipes() {
         Logger logger = LoggerFactory.getLogger(getClass());
         logger.debug("Start to getRecipes from Postgres via JDBC.");
         //Step1: Prepare the required data model
-        List<Ingredient> ingredients = new ArrayList<>();
+        List<Recipe> recipes = new ArrayList<>();
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
@@ -35,21 +38,27 @@ public class IngredientJDBCDaoImpl implements IIngredientDao{
             //Step3: Execute a query
             stmt = conn.createStatement();
             String sql;
-            sql = "SELECT * FROM Ingredients";
+            sql = "SELECT * FROM Recipes";
             rs = stmt.executeQuery(sql);
             logger.info("Connects to DB successfully and execute the query.");
 
             //Step4: Extract data from result set
             while(rs.next()) {
-                Long ingredientId = rs.getLong("ingredient_id");
-                String ingredientName = rs.getString("ingredient_name");
-                String category = rs.getString("category");
+                Long recipeId = rs.getLong("recipe_id");
+                String recipeName = rs.getString("recipe_name");
+                String description = rs.getString("description");
+                String instructions = rs.getString("instructions");
+                String dietaryRestrictions = rs.getString("dietaryRestrictions");
+                // Long userId = rs.getLong("user_id");
 
-                Ingredient ingredient = new Ingredient();
-                ingredient.setId(ingredientId);
-                ingredient.setName(ingredientName);
-                ingredient.setCategory(category);
-                ingredients.add(ingredient);
+                Recipe recipe = new Recipe();
+                recipe.setId(recipeId);
+                recipe.setName(recipeName);
+                recipe.setDescription(description);
+                recipe.setInstructions(instructions);
+                recipe.setDietaryRestrictions(dietaryRestrictions);
+                // recipe.setUserId();
+                recipes.add(recipe);
             }
 
         } catch (SQLException e) {
@@ -66,27 +75,37 @@ public class IngredientJDBCDaoImpl implements IIngredientDao{
                 //e.printStackTrace();
             }
         }
-        logger.info("Finish getIngredients {}", ingredients);
-        return ingredients;
+        logger.info("Finish getRecipes {}", recipes);
+        return recipes;
     }
 
     @Override
-    public Ingredient getById(Long id) {
+    public Recipe getById(Long id) {
         return null;
     }
 
     @Override
-    public void delete(Ingredient ingredient) {
-
-    }
-
-    @Override
-    public Ingredient getIngredientEagerBy(Long id) {
+    public List<Recipe> getRecipesByIngredient(Long ingredientId) {
         return null;
     }
 
     @Override
-    public Ingredient update(Ingredient ingredient) {
+    public Set<Long> getIngredientIdsForRecipe(Long recipeId) {
+        return null;
+    }
+
+    @Override
+    public Recipe getRecipeEagerBy(Long id) {
+        return null;
+    }
+
+    @Override
+    public void delete(Recipe recipe) {
+
+    }
+
+    @Override
+    public Recipe update(Recipe recipe) {
         return null;
     }
 }

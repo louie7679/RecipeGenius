@@ -1,9 +1,9 @@
 package org.ascending.training.repository;
 
-import org.ascending.training.model.Ingredient;
 import org.ascending.training.model.Recipe;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IRecipeDao {
     //Create
@@ -12,13 +12,17 @@ public interface IRecipeDao {
     //Retrieve
     public List<Recipe> getRecipes();
 
-    //Update = get + ... + save
     Recipe getById(Long id);
+
+    List<Recipe> getRecipesByIngredient(Long ingredientId);
+
+    Set<Long> getIngredientIdsForRecipe(Long recipeId);
+
+    Recipe getRecipeEagerBy(Long id);
 
     //Delete
     void delete(Recipe recipe);
 
-    Recipe getRecipeEagerBy(Long id);
-
+    //Update = get + ... + save
     Recipe update(Recipe recipe);
 }

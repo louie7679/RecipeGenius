@@ -26,6 +26,21 @@ public class RecipeService {
         recipeDao.save(recipe);
     }
 
+    public void saveRecipeWithIngredients(Recipe recipe, List<String> ingredientNames) {
+        List<Ingredient> ingredients = new ArrayList<>();
+        for (String ingredientName : ingredientNames) {
+            Ingredient ingredient = ingredientDao.getByName(ingredientName);
+            if (ingredient == null) {
+                ingredient = new Ingredient();
+                ingredient.setName(ingredientName);
+                ingredientDao.save(ingredient);
+            }
+            ingredients.add(ingredient);
+        }
+        recipe.setIngredients(ingredients);
+        recipeDao.save(recipe);
+    }
+
     public List<Recipe> getRecipes() {
         return recipeDao.getRecipes();
     }

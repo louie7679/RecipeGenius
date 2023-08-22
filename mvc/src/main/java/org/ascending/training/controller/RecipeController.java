@@ -1,5 +1,6 @@
 package org.ascending.training.controller;
 
+import org.ascending.training.dto.RecipeDTO;
 import org.ascending.training.model.Recipe;
 import org.ascending.training.service.RecipeService;
 import org.slf4j.Logger;
@@ -16,6 +17,17 @@ public class RecipeController {
 
     @Autowired
     private RecipeService recipeService;
+
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public void create(@RequestBody Recipe recipe) {
+        logger.info("Post a new object {}", recipe.getName()) ;
+        recipeService.save(recipe);
+    }
+
+    @RequestMapping(value = "/createWithIngredients", method = RequestMethod.POST)
+    public void createRecipeWithIngredients(@RequestBody RecipeDTO recipeDTO) {
+        recipeService.saveRecipeWithIngredients(recipeDTO.getRecipe(), recipeDTO.getIngredients());
+    }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<Recipe> getRecipes() {
@@ -36,7 +48,6 @@ public class RecipeController {
         logger.info("Matching recipes completed. Matched recipes: {}", matchedRecipes);
         return matchedRecipes;
     }
-
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, params = {"name"})
     public Recipe updateRecipeName(@PathVariable("id") Long id, @RequestParam("name") String name) {
@@ -72,12 +83,6 @@ public class RecipeController {
         recipe.setDietaryRestrictions(dietaryRestrictions);
         recipe = recipeService.update(recipe);
         return recipe;
-    }
-
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    public void create(@RequestBody Recipe recipe) {
-        logger.info("Post a new object {}", recipe.getName()) ;
-        recipeService.save(recipe);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

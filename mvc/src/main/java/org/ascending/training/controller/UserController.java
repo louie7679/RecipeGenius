@@ -18,6 +18,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public void create(@RequestBody User user) {
+        logger.info("Post a new object {}", user.getName()) ;
+        userService.save(user);
+    }
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<User> getUsers() {
         logger.info("This is user controller");
@@ -46,12 +52,6 @@ public class UserController {
         user.setDietaryRestrictions(dietaryRestrictions);
         user = userService.update(user);
         return user;
-    }
-
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    public void create(@RequestBody User user) {
-        logger.info("Post a new object {}", user.getName()) ;
-        userService.save(user);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

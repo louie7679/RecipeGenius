@@ -7,7 +7,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>RecipeGenius</name>
+  <name>RecipeGenius-MVC</name>
   <url>http://maven.apache.org</url>
 
   <properties>

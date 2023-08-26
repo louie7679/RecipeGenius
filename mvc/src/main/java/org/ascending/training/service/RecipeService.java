@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +66,7 @@ public class RecipeService {
         return recipeDao.update(recipe);
     }
 
-    public List<Recipe> findRecipesByIngredients(List<String> userIngredients) {
+    public Set<Recipe> findRecipesByIngredients(List<String> userIngredients) {
         if (userIngredients == null) {
             throw new InvalidInputException("Ingredient list cannot be null.");
         }
@@ -87,9 +88,9 @@ public class RecipeService {
         }
 
         // Filter out recipes that require additional ingredients
-        List<Recipe> finalRecipes = new ArrayList<>();
+        Set<Recipe> finalRecipes = new HashSet<>();
         for (Recipe recipe : matchedRecipes) {
-            if (recipeContainsAllIngredients(recipe, ingredients)) {
+            if (recipeContainsAllIngredients(recipe, ingredients) && !finalRecipes.contains(recipe)) {
                 finalRecipes.add(recipe);
             }
         }
@@ -102,7 +103,7 @@ public class RecipeService {
                 .map(Ingredient::getId)
                 .collect(Collectors.toSet());
 
-        // Check if the required ingredient IDs set contains all provided ingredient IDs
-        return requiredIngredientIds.containsAll(providedIngredientIds);
+        // Check if the provided ingredient IDs set contains all required ingredient IDs
+        return providedIngredientIds.containsAll(requiredIngredientIds);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/recipe")
@@ -42,9 +43,9 @@ public class RecipeController {
     }
 
     @RequestMapping(value = "/matchByIngredients", method = RequestMethod.GET, params = {"ingredients"})
-    public List<Recipe> findRecipesByIngredients(@RequestParam("ingredients") List<String> userIngredients) {
+    public Set<Recipe> findRecipesByIngredients(@RequestParam("ingredients") List<String> userIngredients) {
         logger.info("Received request to match recipes by ingredients: {}", userIngredients);
-        List<Recipe> matchedRecipes = recipeService.findRecipesByIngredients(userIngredients);
+        Set<Recipe> matchedRecipes = recipeService.findRecipesByIngredients(userIngredients);
         logger.info("Matching recipes completed. Matched recipes: {}", matchedRecipes);
         return matchedRecipes;
     }

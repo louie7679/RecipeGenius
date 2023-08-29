@@ -1,5 +1,6 @@
 package org.ascending.training.controller;
 
+import org.ascending.training.dto.IngredientDTO;
 import org.ascending.training.dto.RecipeDTO;
 import org.ascending.training.model.Recipe;
 import org.ascending.training.service.RecipeService;
@@ -42,10 +43,19 @@ public class RecipeController {
         return recipeService.getBy(id);
     }
 
-    @RequestMapping(value = "/matchByIngredients", method = RequestMethod.GET, params = {"ingredients"})
-    public Set<Recipe> findRecipesByIngredients(@RequestParam("ingredients") List<String> userIngredients) {
+//    @RequestMapping(value = "/matchByIngredients", method = RequestMethod.GET, params = {"ingredients"})
+//    public Set<Recipe> findRecipesByIngredients(@RequestParam("ingredients") List<String> userIngredients) {
+//        logger.info("Received request to match recipes by ingredients: {}", userIngredients);
+//        Set<Recipe> matchedRecipes = recipeService.findRecipesByIngredients(userIngredients);
+//        logger.info("Matching recipes completed. Matched recipes: {}", matchedRecipes);
+//        return matchedRecipes;
+//    }
+
+    @RequestMapping(value = "/matchByIngredients", method = RequestMethod.GET)
+    public List<Recipe> findRecipesByIngredients(@RequestBody IngredientDTO ingredientDTO) {
+        List<String> userIngredients = ingredientDTO.getIngredients();
         logger.info("Received request to match recipes by ingredients: {}", userIngredients);
-        Set<Recipe> matchedRecipes = recipeService.findRecipesByIngredients(userIngredients);
+        List<Recipe> matchedRecipes = recipeService.findRecipesByIngredients(userIngredients);
         logger.info("Matching recipes completed. Matched recipes: {}", matchedRecipes);
         return matchedRecipes;
     }

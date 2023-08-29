@@ -66,13 +66,13 @@ public class RecipeService {
         return recipeDao.update(recipe);
     }
 
-    public Set<Recipe> findRecipesByIngredients(List<String> userIngredients) {
+    public List<Recipe> findRecipesByIngredients(List<String> userIngredients) {
         if (userIngredients == null) {
             throw new InvalidInputException("Ingredient list cannot be null.");
         }
 
         List<Ingredient> ingredients = new ArrayList<>();
-        // Retrieve ingredient IDs for user-provided ingredients
+        // Retrieve ingredient for user-provided ingredients
         for (String ingredientName : userIngredients) {
             Ingredient ingredient = ingredientDao.getByName(ingredientName);
             if (ingredient != null) {
@@ -81,14 +81,14 @@ public class RecipeService {
         }
 
         // Retrieve recipes that use the provided ingredients
-        List<Recipe> matchedRecipes = new ArrayList<>();
+        Set<Recipe> matchedRecipes = new HashSet<>();
         for (Ingredient ingredient: ingredients) {
             List<Recipe> recipesUsingIngredients = recipeDao.getRecipesByIngredient(ingredient.getId());
             matchedRecipes.addAll(recipesUsingIngredients);
         }
 
         // Filter out recipes that require additional ingredients
-        Set<Recipe> finalRecipes = new HashSet<>();
+        List<Recipe> finalRecipes = new ArrayList<>();
         for (Recipe recipe : matchedRecipes) {
             if (recipeContainsAllIngredients(recipe, ingredients) && !finalRecipes.contains(recipe)) {
                 finalRecipes.add(recipe);

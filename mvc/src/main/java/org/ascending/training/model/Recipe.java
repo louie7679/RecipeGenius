@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "recipes")
@@ -76,4 +77,38 @@ public class Recipe {
     public List<Ingredient> getIngredients() { return ingredients; }
 
     public void setIngredients(List<Ingredient> ingredients) { this.ingredients = ingredients; }
+
+    @Override
+    public int hashCode() {
+//        final int prime = 31;
+//        int result = 1;
+//        result = prime * result + (int)id;
+//        result = prime * result + name.hashCode()
+//        result = prime * result + description.hashCode();
+//        result = prime * result + instructions.hashCode();
+//        result = prime * result + dietaryRestrictions.hashCode();
+//        return result;
+
+        return Objects.hash(id, name, description, instructions, dietaryRestrictions);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Recipe recipe = (Recipe) o;
+        return id == recipe.id &&
+                name.equals(recipe.name) &&
+                Objects.equals(description, recipe.description) &&
+                Objects.equals(instructions, recipe.instructions) &&
+                Objects.equals(dietaryRestrictions, recipe.dietaryRestrictions);
+    }
+
+
 }

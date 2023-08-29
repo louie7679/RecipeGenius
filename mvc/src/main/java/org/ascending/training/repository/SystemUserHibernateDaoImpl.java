@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,14 +127,28 @@ public class SystemUserHibernateDaoImpl implements ISystemUserDao{
     @Override
     public List<Role> getSystemUserRole(SystemUser systemUser) {
         Session session = sessionFactory.openSession();
-        String hql = "SELECT r FROM Role r JOIN r.systemUsers u WHERE u = :user";
+        Transaction transaction = null;
         try {
-            Query<Role> query = session.createQuery(hql, Role.class);
+            transaction = session.beginTransaction();
+            String hql = "SELECT u FROM SystemUser u LEFT JOIN FETCH u.roles WHERE u = :user";
+            Query<SystemUser> query = session.createQuery(hql, SystemUser.class);
             query.setParameter("user", systemUser);
-            List<Role> roles = query.getResultList();
+
+            // Fetch the user with roles eagerly
+            SystemUser systemUserWithRoles = query.uniqueResult();
+
+            transaction.commit();
             session.close();
-            return roles;
+
+            if (systemUserWithRoles != null) {
+                return systemUserWithRoles.getRoles();
+            } else {
+                return new ArrayList<>(); // Return an empty list if no user found
+            }
         } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             logger.error("Session close exception or query exception", e);
             session.close();
             return null;

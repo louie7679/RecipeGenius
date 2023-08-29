@@ -3,10 +3,10 @@ package org.ascending.training.service;
 import org.ascending.training.model.Role;
 import org.ascending.training.model.SystemUser;
 import org.ascending.training.repository.ISystemUserDao;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -38,6 +38,7 @@ public class SystemUserService {
         return systemUser;
     }
 
+    @Transactional
     public List<Role> getSystemUserRole(SystemUser systemUser) {
         return systemUserDao.getSystemUserRole(systemUser);
     }

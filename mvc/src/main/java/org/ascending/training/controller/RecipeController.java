@@ -42,7 +42,7 @@ public class RecipeController {
         logger.info("This is recipe controller, get by {}", id);
         return recipeService.getBy(id);
     }
-    
+
     @RequestMapping(value = "/matchByIngredients", method = RequestMethod.GET)
     public List<Recipe> findRecipesByIngredients(@RequestBody IngredientDTO ingredientDTO) {
         List<String> userIngredients = ingredientDTO.getIngredients();

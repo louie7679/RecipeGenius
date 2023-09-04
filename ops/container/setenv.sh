@@ -1,16 +1,3 @@
-#M1 Basic HardCode Mode
-export JAVA_OPTS="$JAVA_OPTS -Ddatabase.driver=org.postgresql.Driver"
-export JAVA_OPTS="$JAVA_OPTS -Ddatabase.dialect=org.hibernate.dialect.PostgreSQL9Dialect"
-export JAVA_OPTS="$JAVA_OPTS -Dlogging.level.org.springframework=INFO"
-export CATALINA_OPTS="$CATALINA_OPTS -Daws.region=us-east-2"
-export JAVA_OPTS="$JAVA_OPTS -Ddatabase.url=jdbc:postgresql://172.17.0.3:5432/RecipeRecDB"
-export JAVA_OPTS="$JAVA_OPTS -Ddatabase.user=admin"
-export JAVA_OPTS="$JAVA_OPTS -Ddatabase.password=Training123!"
-export JAVA_OPTS="$JAVA_OPTS -DSECRET_KEY=tengfei-ascending"
-export JAVA_OPTS="$JAVA_OPTS -Daws.accessKeyId=AKIAWCY2OUKORAAACQFS"
-export JAVA_OPTS="$JAVA_OPTS -Daws.secretKey=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"
-export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=dev"
-
 #export JAVA_OPTS="$JAVA_OPTS -Ddatabase.driver=org.postgresql.Driver"
 #export JAVA_OPTS="$JAVA_OPTS -Ddatabase.dialect=org.hibernate.dialect.PostgreSQL9Dialect"
 #export JAVA_OPTS="$JAVA_OPTS -Dlogging.level.org.springframework=INFO"

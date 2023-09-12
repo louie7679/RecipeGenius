@@ -1,0 +1,193 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudformation template for test use
+Parameters:
+  ELBStack:
+    Description: Name of an active CloudFormation stack that contains load balancers and all target groups
+    Type: String
+    Default: tengfei-recipe-elb
+  SecurityStack:
+    Description: Name of an active CloudFormation stack that contains all roles and SGs resources
+    Type: String
+    Default: Ascending-Security
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Select subnets in your VPC
+  JavaImageTag:
+    Type: String
+    Description: The 8 digits git commit hash code
+  DBUsername:
+    Type: String
+  DBPassword:
+    Type: String
+    NoEcho: true
+
+Resources:
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+  ecsLogGroup: 
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join 
+        - '-'
+        - - ECSLogGroup
+          - !Ref 'AWS::StackName'
+      RetentionInDays: 7
+
+  apiTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Join 
+        - ''
+        - - !Ref 'AWS::StackName'
+          - '-ecs-demo-api'
+      ContainerDefinitions:
+        - Name: api
+          Essential: true
+          Image: !Sub 418277925533.dkr.ecr.us-east-2.amazonaws.com/tengfei_recipe:${JavaImageTag}
+          Memory: 2048
+          PortMappings:
+            - ContainerPort: 8080
+          Environment:
+            - Name: database.databaseName
+              Value: RecipeRecDB
+            - Name: database.portNumber
+              Value: 5432
+            - Name: database.serverName
+              Value: "jdbc:postgresql://car-dev.cpnxuicfyso5.us-east-2.rds.amazonaws.com:5432/RecipeRecDB"
+            - Name: database.user
+              Value: admin
+            - Name: database.password
+              Value: Training123!
+            - Name: jms.queue.name
+              Value: ascendingTraining
+            - Name: AWS_REGION
+              Value: us-east-2
+          LogConfiguration:
+            LogDriver: 'awslogs'
+            Options:
+              awslogs-group: !Ref ecsLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 'ecs-demo-api'
+      TaskRoleArn:
+        Fn::ImportValue: !Sub ${SecurityStack}-ECSTaskRole
+
+  apiService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      DesiredCount: 1
+      LoadBalancers:
+      - ContainerName: api
+        ContainerPort: 8080
+        TargetGroupArn: 
+          Fn::ImportValue: !Sub ${ELBStack}-ECSTG
+      Role: 
+        Fn::ImportValue: !Sub ${SecurityStack}-ECSServiceRole
+      TaskDefinition: !Ref apiTaskDefinition
+ 
+  apiServiceScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: apiService
+    Properties:
+      MaxCapacity: 2
+      MinCapacity: 1
+      ResourceId: !Join ['', [service/, !Ref 'ECSCluster', /, !GetAtt [apiService, Name]]]
+      RoleARN: 
+        Fn::ImportValue: !Sub ${SecurityStack}-AutoscalingRole
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  apiServiceScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub apiServiceScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref apiServiceScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        CustomizedMetricSpecification:
+          Dimensions: 
+            - Name: TargetGroup
+              Value: !Select
+                - 5
+                - !Split
+                  - ":"
+                  - Fn::ImportValue: !Sub ${ELBStack}-ECSTG
+          MetricName: RequestCountPerTarget
+          Namespace: AWS/ApplicationELB
+          Statistic: Sum
+        ScaleInCooldown: 60
+        TargetValue: 500
+ 
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData: 
+        ImageId: "ami-0e13330257b20a8e4"
+        IamInstanceProfile: 
+          Arn: 
+            Fn::ImportValue: !Sub ${SecurityStack}-EC2InstanceProfile
+        KeyName: EC2 Tutorial
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub ${SecurityStack}-ECSSG
+        UserData:
+          Fn::Base64:
+            !Sub |
+              #!/bin/bash
+              echo "ECS_CLUSTER=${ECSCluster}" >> /etc/ecs/ecs.config
+              echo "ECS_AVAILABLE_LOGGING_DRIVERS=[\"awslogs\",\"fluentd\",\"gelf\",\"json-file\",\"journald\",\"splunk\"]" >> /etc/ecs/ecs.config
+              yum update -y
+              yum install aws-cli -y
+  SpotFleetAutoScaling:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      DesiredCapacity: 1
+      MaxSize: 5
+      MinSize: 1
+      MixedInstancesPolicy:
+        InstancesDistribution:
+          SpotInstancePools: 18
+          OnDemandPercentageAboveBaseCapacity: 0
+        LaunchTemplate: 
+          LaunchTemplateSpecification: 
+            LaunchTemplateId: !Ref LaunchTemplate
+            Version: !GetAtt LaunchTemplate.LatestVersionNumber
+          Overrides:
+            - InstanceType: t2.large
+            - InstanceType: t2.xlarge
+            - InstanceType: t2.2xlarge
+            - InstanceType: t3.large
+            - InstanceType: t3.xlarge
+            - InstanceType: t3.2xlarge
+            - InstanceType: t3a.large
+            - InstanceType: t3a.xlarge
+            - InstanceType: t3a.2xlarge
+            - InstanceType: a1.large
+            - InstanceType: a1.xlarge
+            - InstanceType: a1.2xlarge
+            - InstanceType: m4.large
+            - InstanceType: m4.xlarge
+            - InstanceType: m4.2xlarge
+            - InstanceType: m5.large
+            - InstanceType: m5.xlarge
+            - InstanceType: m5.2xlarge
+      VPCZoneIdentifier: !Ref Subnets
+  EC2AutoScalingPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SpotFleetAutoScaling
+      EstimatedInstanceWarmup: 180
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        CustomizedMetricSpecification:
+          Dimensions: 
+            - Name: TargetGroup
+              Value: !Select
+                - 5
+                - !Split
+                  - ":"
+                  - Fn::ImportValue: !Sub ${ELBStack}-ECSTG
+          MetricName: RequestCountPerTarget
+          Namespace: AWS/ApplicationELB
+          Statistic: Sum
+        TargetValue: 500

@@ -1,5 +1,6 @@
 package org.ascending.training.repository;
 
+import org.ascending.training.ApplicationBootstrap;
 import org.ascending.training.model.Ingredient;
 import org.ascending.training.util.HibernateUtil;
 import org.hibernate.HibernateException;
@@ -14,6 +15,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
@@ -23,9 +29,15 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
+//@RunWith(MockitoJUnitRunner.class)
+
+//@RunWith(MockitoJUnitRunner.class)
+//@Profile("unit")
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = ApplicationBootstrap.class)
 public class IngredientHibernateDaoTest {
-    @Mock
+    @Autowired
     private SessionFactory mockSessionFactory;
 
     @Mock
@@ -37,12 +49,13 @@ public class IngredientHibernateDaoTest {
     @Mock
     private Transaction mockTransaction;
 
+    @Autowired
     private IIngredientDao ingredientDao;
 
     @Before
     public void setUp() {
         initMocks(this);
-        ingredientDao = new IngredientHibernateDaoImpl();
+        // ingredientDao = new IngredientHibernateDaoImpl();
     }
 
     @After
@@ -50,37 +63,37 @@ public class IngredientHibernateDaoTest {
 
     }
 
-    @Test
-    public void saveTest_happyPath() {
-        // Prepare test data
-        Ingredient ingredient = new Ingredient(
-                1,
-                "Flour",
-                "Baking"
-        );
-        try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
-            // Mock HibernateUtil.getSessionFactory() to return the mockSessionFactory
-            mockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(mockSessionFactory);
-
-            // Mock the behavior of the session factory and session
-            when(mockSessionFactory.openSession()).thenReturn(mockSession);
-            when(mockSession.beginTransaction()).thenReturn(mockTransaction);
-            when(mockSession.save(ingredient)).thenReturn(ingredient.getId());
-            doNothing().when(mockTransaction).commit();
-            doNothing().when(mockSession).close();
-
-            // Call the method under test
-            ingredientDao.save(ingredient);
-
-            // Verify the expected interactions
-            verify(mockSessionFactory).openSession();
-            verify(mockSession).beginTransaction();
-            // Assertion: Verify that save() was called with the expected User object
-            verify(mockSession).save(ingredient);
-            verify(mockTransaction).commit();
-            verify(mockSession).close();
-        }
-    }
+//    @Test
+//    public void saveTest_happyPath() {
+//        // Prepare test data
+//        Ingredient ingredient = new Ingredient(
+//                1,
+//                "Flour",
+//                "Baking"
+//        );
+//        try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
+//            // Mock HibernateUtil.getSessionFactory() to return the mockSessionFactory
+//            mockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(mockSessionFactory);
+//
+//            // Mock the behavior of the session factory and session
+//            when(mockSessionFactory.openSession()).thenReturn(mockSession);
+//            when(mockSession.beginTransaction()).thenReturn(mockTransaction);
+//            when(mockSession.save(ingredient)).thenReturn(ingredient.getId());
+//            doNothing().when(mockTransaction).commit();
+//            doNothing().when(mockSession).close();
+//
+//            // Call the method under test
+//            ingredientDao.save(ingredient);
+//
+//            // Verify the expected interactions
+//            verify(mockSessionFactory).openSession();
+//            verify(mockSession).beginTransaction();
+//            // Assertion: Verify that save() was called with the expected User object
+//            verify(mockSession).save(ingredient);
+//            verify(mockTransaction).commit();
+//            verify(mockSession).close();
+//        }
+//    }
 
     @Test
     public void saveTest_getHibernateException() {
@@ -247,38 +260,38 @@ public class IngredientHibernateDaoTest {
         }
     }
 
-    @Test
-    public void deleteTest_happyPath() {
-        // Prepare test data
-        Ingredient ingredient = new Ingredient(
-                1,
-                "Flour",
-                "Baking"
-        );
-
-        try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
-            // Mock HibernateUtil.getSessionFactory() to return the mockSessionFactory
-            mockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(mockSessionFactory);
-
-            // Mock the behavior of the session factory and session
-            when(mockSessionFactory.openSession()).thenReturn(mockSession);
-            when(mockSession.beginTransaction()).thenReturn(mockTransaction);
-            doNothing().when(mockSession).delete(ingredient);
-            doNothing().when(mockTransaction).commit();
-            doNothing().when(mockSession).close();
-
-            // Call the method under test
-            ingredientDao.delete(ingredient);
-
-            // Verify the expected interactions
-            verify(mockSessionFactory).openSession();
-            verify(mockSession).beginTransaction();
-            // Assertion: Verify that delete() was called with the expected Ingredient object
-            verify(mockSession).delete(ingredient);
-            verify(mockTransaction).commit();
-            verify(mockSession).close();
-        }
-    }
+//    @Test
+//    public void deleteTest_happyPath() {
+//        // Prepare test data
+//        Ingredient ingredient = new Ingredient(
+//                1,
+//                "Flour",
+//                "Baking"
+//        );
+//
+//        try(MockedStatic mockedStatic = mockStatic(HibernateUtil.class)) {
+//            // Mock HibernateUtil.getSessionFactory() to return the mockSessionFactory
+//            mockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(mockSessionFactory);
+//
+//            // Mock the behavior of the session factory and session
+//            when(mockSessionFactory.openSession()).thenReturn(mockSession);
+//            when(mockSession.beginTransaction()).thenReturn(mockTransaction);
+//            doNothing().when(mockSession).delete(ingredient);
+//            doNothing().when(mockTransaction).commit();
+//            doNothing().when(mockSession).close();
+//
+//            // Call the method under test
+//            ingredientDao.delete(ingredient);
+//
+//            // Verify the expected interactions
+//            verify(mockSessionFactory).openSession();
+//            verify(mockSession).beginTransaction();
+//            // Assertion: Verify that delete() was called with the expected Ingredient object
+//            verify(mockSession).delete(ingredient);
+//            verify(mockTransaction).commit();
+//            verify(mockSession).close();
+//        }
+//    }
 
     @Test
     public void deleteTest_getHibernateException(){

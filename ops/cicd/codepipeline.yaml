@@ -5,9 +5,9 @@ Parameters:
   SecurityStack:
     Description: Name of an active CloudFormation stack that contains all roles and SGs resources
     Type: String
-    Default: Ascending-Security
+    Default: tengfei-test-security-inclass
   Username:
-    Description: Database User
+    Description: Database Username
     Type: String
     NoEcho: true
   Password:
@@ -27,10 +27,10 @@ Resources:
       Description: Unit Test before Build and Deployment
       VpcConfig:
         SecurityGroupIds: 
-          - sg-09fe2d916aa85d13b
+          - sg-095a633dd9076b36f
         Subnets: 
-          - subnet-0ab40e2bbecc06d23
-        VpcId: vpc-0569778901e7c0e86
+          - subnet-0b0b50f3be1a09500
+        VpcId: vpc-000835ece638282a2
       Environment: 
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
@@ -40,11 +40,11 @@ Resources:
           - Name: DB_USERNAME
             Value: !Ref Username
           - Name: DB_URL
-            Value: car-dev.cpnxuicfyso5.us-east-1.rds.amazonaws.com
+            Value: reciperecdb.chxpqmvkujj9.us-east-1.rds.amazonaws.com
           - Name: DB_PASSWORD
             Value: !Ref Password
           - Name: DB_NAME
-            Value: cardev
+            Value: RecipeRecDB
       ServiceRole: 
         Fn::ImportValue: !Sub "${SecurityStack}-CodeBuildRole"
       Name:
@@ -63,12 +63,12 @@ Resources:
               commands:
                 - cd mvc
                 - ls
-                - mvn clean compile flyway:migrate -P unit -Ddb_url=${DB_URL}:5432/${DB_NAME} -Ddb_username=${DB_USERNAME} -Ddb_password=${DB_PASSWORD} -q
+                - mvn clean compile flyway:migrate -P unit -Ddb_url=jdbc:postgresql://reciperecdb.chxpqmvkujj9.us-east-1.rds.amazonaws.com:5432/RecipeRecDB -Ddb_user=tengfei_admin -Ddb_password=password1234 -q
             build:
               commands:
                 - mvn test -Dspring.profiles.active=unit -Ddatabase.serverName=jdbc:postgresql://${DB_URL}:5432/${DB_NAME} -Ddatabase.username=${DB_USERNAME} -Ddatabase.password=${DB_PASSWORD} -Djwt.expiration=86400 -Djwt.secret=123456789 -q
         GitCloneDepth: 1
-        Location: https://github.com/ryohang/car-dealer-spring-mvc.git
+        Location: https://github.com/louie7679/RecipeGenius.git
         Type: GITHUB
   BuildWarFile:
     Type: AWS::CodeBuild::Project
@@ -102,9 +102,9 @@ Resources:
               commands:
                 - cd mvc
                 - mvn compile package -DskipTests=true -q
-                - aws s3 cp target/*.war s3://chris-car-dealer-mvc/chris_car_project/${HASH}.war
+                - aws s3 cp target/*.war s3://tengfei-recipe-mvc-v2/tengfei_recipe_project/${HASH}.war
         GitCloneDepth: 1
-        Location: https://github.com/ryohang/car-dealer-spring-mvc.git
+        Location: https://github.com/louie7679/RecipeGenius.git
         Type: GITHUB
   BuildImage:
     Type: AWS::CodeBuild::Project
@@ -119,7 +119,7 @@ Resources:
         PrivilegedMode: true
         EnvironmentVariables:
           - Name: ECR
-            Value: 847915753970.dkr.ecr.us-east-1.amazonaws.com/chris_car
+            Value: 418277925533.dkr.ecr.us-east-1.amazonaws.com/tengfei_recipe
       Name:
         Fn::Join:
           - ''
@@ -139,15 +139,15 @@ Resources:
             build:
               commands:
                 - cd ./ops/container/
-                - aws s3 cp s3://chris-car-dealer-mvc/chris_car_project/${IMAGE_TAG}.war .
+                - aws s3 cp s3://tengfei-recipe-mvc-v2/tengfei_recipe_project/${IMAGE_TAG}.war .
                 - docker build -t "${ECR}:${IMAGE_TAG}" .
             post_build:
               commands:
                 - docker push ${ECR}:${IMAGE_TAG}
                 - echo "export TAG=${IMAGE_TAG}" > tag.sh
-                - aws s3 cp tag.sh s3://chris-car-dealer-mvc/ --quiet
+                - aws s3 cp tag.sh s3://tengfei-recipe-mvc-v2/ --quiet
         GitCloneDepth: 1
-        Location: https://github.com/ryohang/car-dealer-spring-mvc.git
+        Location: https://github.com/louie7679/RecipeGenius.git
         Type: GITHUB
   UpdateCloudFormation:
     Type: AWS::CodeBuild::Project
@@ -166,7 +166,7 @@ Resources:
         Type: LINUX_CONTAINER
         EnvironmentVariables:
           - Name: STACK_NAME
-            Value: chris-ecs
+            Value: tengfei-recipe-ecs
       ServiceRole: 
         Fn::ImportValue: !Sub "${SecurityStack}-CodeBuildRole"
       TimeoutInMinutes: 60
@@ -176,13 +176,13 @@ Resources:
           phases:
             pre_build:
               commands:
-                - aws s3 cp s3://chris-car-dealer-mvc/tag.sh . --quiet
+                - aws s3 cp s3://tengfei-recipe-mvc-v2/tag.sh . --quiet
                 - . ./tag.sh
             build:
               commands:
                 - aws cloudformation update-stack --stack-name ${STACK_NAME} --use-previous-template --parameters ParameterKey=ELBStack,UsePreviousValue=true ParameterKey=SecurityStack,UsePreviousValue=true ParameterKey=Subnets,UsePreviousValue=true ParameterKey=JavaImageTag,ParameterValue=${TAG} ParameterKey=DBUsername,UsePreviousValue=true ParameterKey=DBPassword,UsePreviousValue=true
         GitCloneDepth: 1
-        Location: https://github.com/ryohang/car-dealer-spring-mvc.git
+        Location: https://github.com/louie7679/RecipeGenius.git
         Type: GITHUB
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -191,7 +191,8 @@ Resources:
         Fn::ImportValue: !Sub "${SecurityStack}-CodePipelineRole"
       ArtifactStore:
         Type: S3
-        Location: chris-car-dealer-mvc
+        Location: tengfei-recipe-mvc-v2
+
       Stages:
         - Name: Source
           Actions:
@@ -202,8 +203,8 @@ Resources:
                 Provider: GitHub
                 Version: 1
               Configuration:
-                Owner: ryohang
-                Repo: car-dealer-spring-mvc
+                Owner: louie7679
+                Repo: RecipeGenius
                 Branch: master
                 OAuthToken: !Ref OAuthToken
               OutputArtifacts:

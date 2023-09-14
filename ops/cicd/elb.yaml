@@ -7,7 +7,7 @@ Parameters:
   SecurityStack:
     Description: Name of an active CloudFormation stack that contains all roles and SGs resources
     Type: String
-    Default: tengfei-test-security-in-class
+    Default: tengfei-test-security-inclass
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: Select a VPC with Subnets covering 2 Availability zone at least.

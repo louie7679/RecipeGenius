@@ -9,7 +9,7 @@ Parameters:
   SecurityStack:
     Description: Name of an active CloudFormation stack that contains all roles and SGs resources
     Type: String
-    Default: Ascending-Security
+    Default: tengfei-test-security-inclass
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
     Description: Select subnets in your VPC
@@ -44,25 +44,27 @@ Resources:
       ContainerDefinitions:
         - Name: api
           Essential: true
-          Image: !Sub 418277925533.dkr.ecr.us-east-2.amazonaws.com/tengfei_recipe:${JavaImageTag}
+          Image: !Sub 418277925533.dkr.ecr.us-east-1.amazonaws.com/tengfei_recipe:${JavaImageTag}
           Memory: 2048
           PortMappings:
             - ContainerPort: 8080
           Environment:
-            - Name: database.databaseName
+            - Name: DB_NAME
               Value: RecipeRecDB
-            - Name: database.portNumber
+            - Name: DB_PORT
               Value: 5432
-            - Name: database.serverName
-              Value: "jdbc:postgresql://car-dev.cpnxuicfyso5.us-east-2.rds.amazonaws.com:5432/RecipeRecDB"
-            - Name: database.user
-              Value: admin
-            - Name: database.password
-              Value: Training123!
+            - Name: DB_URL
+              Value: "jdbc:postgresql://reciperecdb.chxpqmvkujj9.us-east-1.rds.amazonaws.com:5432/RecipeRecDB"
+            - Name: DB_USER
+              Value: tengfei_admin
+            - Name: DB_PW
+              Value: password1234
+            - Name: SECRET_KEY
+              Value: tengfei-ascending
             - Name: jms.queue.name
               Value: ascendingTraining
             - Name: AWS_REGION
-              Value: us-east-2
+              Value: us-east-1
           LogConfiguration:
             LogDriver: 'awslogs'
             Options:
@@ -127,7 +129,7 @@ Resources:
         IamInstanceProfile: 
           Arn: 
             Fn::ImportValue: !Sub ${SecurityStack}-EC2InstanceProfile
-        KeyName: EC2 Tutorial
+        KeyName: recipe
         SecurityGroupIds:
           - Fn::ImportValue: !Sub ${SecurityStack}-ECSSG
         UserData:

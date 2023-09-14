@@ -146,12 +146,12 @@
         <version>8.0.2</version>
         <configuration>
           <driver>org.postgresql.Driver</driver>
-<!--          <url>jdbc:postgresql://localhost:5430/RecipeRecDB</url>-->
-<!--          <user>admin</user>-->
-<!--          <password>Training123!</password>-->
-          <url>${db_url}</url>
-          <user>${db_user}</user>
-          <password>${db_password}}</password>
+          <url>jdbc:postgresql://reciperecdb.chxpqmvkujj9.us-east-1.rds.amazonaws.com:5432/RecipeRecDB</url>
+          <user>tengfei_admin</user>
+          <password>password1234</password>
+<!--          <url>${db_url}</url>-->
+<!--          <user>${db_user}</user>-->
+<!--          <password>${db_password}}</password>-->
           <locations>
             <location>db/migration</location>
           </locations>

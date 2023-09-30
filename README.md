@@ -4,7 +4,7 @@
 
 #### Project Original Thoughts:
 
-The original concept behind this project was to create a recipe recommendation system that leverages the power of technology to assist users in discovering new and exciting recipes. The idea stemmed from a passion for cooking and the desire to simplify the process of finding recipes that match users' preferences and dietary restrictions. The project aimed to combine modern web development techniques and cloud computing to offer a seamless experience for food enthusiasts.
+The initial inspiration behind this project was to simplify the cooking experience for individuals by recommending recipes based on the ingredients they already have on hand. I envisioned a user-friendly platform that would empower home cooks to make the most of their existing pantry items and reduce food waste.
 
 
 #### Project Technical Overview:

@@ -1,4 +1,4 @@
-## Recipe Recommender
+## Recipe Genius
 
 ### Overview
 
